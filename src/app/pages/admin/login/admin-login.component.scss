@@ -1,0 +1,140 @@
+/**
+ * Admin Login Component Styles
+ * Página de autenticación para administradores
+ */
+
+.admin-login {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--background-body);
+  padding: 2rem;
+
+  &__container {
+    width: 100%;
+    max-width: 450px;
+  }
+
+  &__header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  &__logo {
+    font-family: var(--font-family);
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+    color: var(--red-main);
+  }
+
+  &__subtitle {
+    font-size: 1.125rem;
+    color: var(--black-main);
+    margin: 0;
+  }
+
+  &__card {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    border-top: 4px solid var(--red-main);
+  }
+
+  // ✅ CUADRADO: Contenedor principal con padding lateral único
+  &__content {
+    padding: 1.5rem;
+  }
+
+  // Header con ícono y título - solo espaciado vertical
+  &__card-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding-top: 0.5rem;
+    padding-bottom: 1rem;
+
+    h2 {
+      font-family: var(--font-family);
+      font-size: 1.5rem;
+      color: var(--black-dark);
+      margin: 0;
+    }
+  }
+
+  // Formulario - solo espaciado vertical
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding-top: 0.5rem;
+  }
+
+  // Botón centrado con ancho mínimo
+  &__button {
+    align-self: center;
+    min-width: 200px;
+  }
+
+  // Caja informativa con credenciales
+  &__info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background-color: var(--red-extralight);
+    border-left: 3px solid var(--red-main);
+    border-radius: 4px;
+    font-size: 0.875rem;
+    color: var(--red-dark);
+
+    i {
+      color: var(--red-main);
+    }
+  }
+}
+
+/* Form Fields */
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  &__label {
+    font-weight: 600;
+    color: var(--black-dark);
+    font-size: 0.875rem;
+  }
+
+  // Input con borde rojo si es inválido
+  &__input {
+    &.ng-invalid.ng-touched {
+      border-color: var(--red-main);
+    }
+  }
+
+  // Mensaje de error
+  &__error {
+    color: var(--red-main);
+    font-size: 0.75rem;
+    margin-top: -0.25rem;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .admin-login {
+    padding: 1rem;
+
+    &__logo {
+      font-size: 2rem;
+    }
+
+    &__subtitle {
+      font-size: 1rem;
+    }
+
+  }
+}
+

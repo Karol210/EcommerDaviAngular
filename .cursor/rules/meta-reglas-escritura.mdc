@@ -1,0 +1,217 @@
+---
+description: Cómo escribir nuevas reglas en .cursor/rules/ - Estructura y buenas prácticas
+globs:
+  - ".cursor/rules/**/*.mdc"
+alwaysApply: true
+---
+
+# Meta-Reglas: Cómo Escribir Buenas Reglas
+
+## Propósito
+Este documento define las buenas prácticas para crear y mantener reglas en `.cursor/rules/`.
+
+## 0. Formato de Archivos
+
+Todos los archivos `.mdc` deben tener frontmatter YAML:
+
+```yaml
+---
+description: Breve descripción de la regla
+globs:
+  - "**/*.ts"
+  - "**/*.html"
+alwaysApply: true
+---
+```
+
+## 1. Principios Fundamentales
+
+### Ser Conciso
+- Ir directo al punto
+- Evitar explicaciones obvias
+- No repetir información que un desarrollador profesional ya conoce
+
+### Evitar Redundancia
+- No explicar lo mismo de múltiples formas
+- Un concepto = una explicación
+- Si se repite, extraer a una regla separada
+
+### Ser Práctico
+- Mostrar ejemplos de código real
+- Evitar teoría innecesaria
+- Enfocarse en "cómo hacer", no en "por qué existe"
+
+## 2. Estructura de una Regla
+
+```markdown
+---
+description: Descripción breve
+globs:
+  - "**/*.ts"
+alwaysApply: true
+---
+
+# Título Descriptivo
+
+## Regla General
+Resumen de 1-2 líneas del concepto principal
+
+## 1. Primer Concepto
+
+**❌ INCORRECTO:**
+```código malo```
+
+**✅ CORRECTO:**
+```código bueno```
+
+## 2. Segundo Concepto...
+```
+
+## 3. Qué NO Incluir
+
+### ❌ Explicaciones Extensas del "Por Qué"
+```markdown
+<!-- MAL -->
+Los enumeradores son importantes porque TypeScript es un lenguaje 
+tipado y esto nos permite aprovechar el sistema de tipos para 
+prevenir errores en tiempo de compilación...
+
+<!-- BIEN -->
+Usar enums para valores del dominio:
+```typescript
+enum UserRole { ADMIN = 'admin', USER = 'user' }
+```
+```
+
+### ❌ Múltiples Ejemplos de lo Mismo
+```markdown
+<!-- MAL - 5 ejemplos de lo mismo -->
+❌ sessionStorage.setItem('token', x);
+❌ sessionStorage.setItem('user', x);
+❌ sessionStorage.setItem('theme', x);
+❌ localStorage.setItem('data', x);
+❌ localStorage.setItem('config', x);
+
+<!-- BIEN - 1 o 2 ejemplos representativos -->
+❌ sessionStorage.setItem('token', x);
+✅ sessionStorage.setItem(StorageKeys.TOKEN, x);
+```
+
+### ❌ Warnings y Disclaimers Innecesarios
+```markdown
+<!-- NO HACER -->
+Nota: Recuerda importar el módulo antes de usarlo
+Importante: No olvides que esto requiere...
+Advertencia: Ten cuidado de...
+```
+
+## 4. Qué SÍ Incluir
+
+### ✅ Ejemplos Concretos de Código
+```markdown
+<!-- Código real que se puede copiar y usar -->
+```typescript
+export enum StorageKeys {
+  USER_TOKEN = 'user_token',
+  USER_DATA = 'user_data'
+}
+```
+```
+
+### ✅ Comparaciones Directas
+```markdown
+❌ INCORRECTO: `if (role === 'admin')`
+✅ CORRECTO: `if (role === UserRole.ADMIN)`
+```
+
+### ✅ Referencias Cruzadas Entre Archivos
+```markdown
+<!-- Evitar duplicación usando referencias -->
+**Ver:** `limpieza-codigo.mdc` para uso completo de readonly.
+**Ver también:** `documentacion-codigo.mdc` para JSDoc.
+```
+
+### ✅ Reglas Clave en Lugar de Checklists
+```markdown
+## Reglas Clave
+- Servicios inyectados: `readonly`
+- No usar `any` sin justificación
+- Eliminar imports no usados
+```
+
+## 5. Formato y Estilo
+
+### Títulos
+- Usar H1 para título principal
+- Usar H2 para secciones principales
+- Usar H3 para subsecciones (raramente necesario)
+
+### Código
+- Siempre especificar el lenguaje: ````typescript`, `html`, `scss`
+- Incluir nombre de archivo cuando sea útil: `// storage-keys.enum.ts`
+- Comentarios solo si agregan valor
+
+### Emojis
+- Usar solo `❌` y `✅` para ejemplos incorrecto/correcto
+- Evitar emojis decorativos innecesarios
+
+### Longitud
+- Una regla no debería exceder 300 líneas (ideal: 150-250)
+- Si excede, dividir en múltiples archivos temáticos
+- Eliminar redundancias antes de dividir
+
+## 6. Nomenclatura de Archivos
+
+Usar kebab-case descriptivo:
+
+```
+✅ angular-primeng-best-practices.mdc
+✅ enumeradores-constantes.mdc
+✅ servicios-http.mdc
+✅ meta-reglas-escritura.mdc
+
+❌ rules.mdc (muy genérico)
+❌ best-practices.mdc (muy genérico)
+❌ Angular_Best_Practices.mdc (formato incorrecto)
+```
+
+## 7. Checklist para Nueva Regla
+
+Antes de crear una regla, verificar:
+
+### Frontmatter YAML
+- [ ] Tiene `description`
+- [ ] Tiene `globs` con patrones apropiados
+- [ ] Tiene `alwaysApply: true`
+
+### Contenido
+- [ ] ¿Es información que no es obvia para un dev profesional?
+- [ ] ¿Contiene ejemplos prácticos de código?
+- [ ] ¿Evita redundancia con reglas existentes?
+- [ ] ¿Es específica a este proyecto/stack?
+
+### Qué NO Incluir
+- [ ] ¿NO tiene ejemplos completos extensos (50+ líneas)?
+- [ ] ¿NO tiene checklists extensos (10+ items)?
+- [ ] ¿NO tiene sección de "Beneficios" obvia?
+- [ ] ¿NO tiene múltiples ejemplos de lo mismo?
+
+### Optimización
+- [ ] ¿Usa referencias cruzadas en lugar de duplicar?
+- [ ] ¿Tiene sección "Reglas Clave" en lugar de checklist?
+- [ ] ¿Los ejemplos son concisos (5-15 líneas)?
+
+## Reglas Finales
+
+### 1. Claridad Inmediata
+**Cada regla debe aportar valor inmediato sin requerir múltiples párrafos de contexto.**
+
+### 2. Sin Redundancias
+**Si algo ya está en otro archivo, usar referencia cruzada.**
+
+### 3. Consistencia
+**No contradecir otras reglas en los ejemplos.**
+
+---
+
+**Meta-Regla:** Si estas reglas no se siguen, las otras reglas pierden efectividad y el contexto del modelo se llena de ruido innecesario.

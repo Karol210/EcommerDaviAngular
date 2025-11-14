@@ -1,0 +1,641 @@
+/**
+ * Admin Products Component Styles
+ * 
+ * Vista de gestión de productos del administrador con tabla responsive.
+ * Incluye dos pestañas: productos disponibles y productos con problemas.
+ * 
+ * Principio del Cuadrado aplicado:
+ * - .admin-products-container es el cuadrado padre con padding lateral
+ * - Todos los elementos hijos solo controlan espaciado vertical
+ * 
+ * Responsive: Mobile-first con breakpoint en 768px y 1200px
+ */
+
+.admin-products-container {
+  padding: 2rem; // Cuadrado padre - único elemento con padding lateral
+  max-width: 100%;
+  margin: 0 auto;
+  background: var(--background-body);
+  min-height: 100vh;
+}
+
+// Header Section - Título y acciones principales
+.header {
+  margin-bottom: 2rem;
+  
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--white);
+    padding: 1.5rem 2rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    
+    .header-left {
+      h1 {
+        margin: 0 0 0.25rem 0;
+        font-size: 2rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, var(--red-main) 0%, var(--red-dark) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      
+      .subtitle {
+        margin: 0;
+        color: var(--black-light);
+        font-size: 0.875rem;
+      }
+    }
+    
+    .header-actions {
+      display: flex;
+      gap: 1rem;
+    }
+  }
+}
+
+// Buttons - Estilos para botones PrimeNG
+.header-actions {
+  ::ng-deep {
+    .p-button {
+      font-weight: 600;
+      transition: all 0.3s ease;
+      
+      &:hover:not(:disabled) {
+        transform: translateY(-2px);
+      }
+      
+      &:active {
+        transform: translateY(0);
+      }
+    }
+    
+    .btn-refresh {
+      &:hover:not(:disabled) {
+        box-shadow: 0 4px 15px rgba(225, 17, 28, 0.3);
+      }
+    }
+    
+    .btn-create {
+      &:hover:not(:disabled) {
+        box-shadow: 0 6px 20px rgba(225, 17, 28, 0.4);
+      }
+    }
+  }
+}
+
+// Tabs - Navegación entre categorías de productos con PrimeNG buttons
+.tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  
+  ::ng-deep {
+    .p-button {
+      flex: 1;
+      font-size: 1rem;
+      font-weight: 600;
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      
+      &:hover {
+        transform: translateY(-2px);
+      }
+      
+      .p-badge {
+        font-size: 0.875rem;
+        font-weight: 700;
+      }
+    }
+  }
+}
+
+// Loading State - Indicador de carga
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem;
+  background: var(--white);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  
+  .spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid var(--gray-light);
+    border-top-color: var(--red-main);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  p {
+    margin-top: 1rem;
+    color: var(--black-light);
+    font-size: 1rem;
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+// Empty State - Cuando no hay productos
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem;
+  background: var(--white);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  
+  svg {
+    stroke: var(--gray-dark-1);
+    margin-bottom: 1.5rem;
+  }
+  
+  h3 {
+    margin: 0 0 0.5rem 0;
+    color: var(--black-dark);
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+  
+  p {
+    margin: 0 0 1.5rem 0;
+    color: var(--black-light);
+    font-size: 1rem;
+  }
+  
+  ::ng-deep {
+    .btn-create {
+      &:hover {
+        box-shadow: 0 6px 20px rgba(225, 17, 28, 0.4);
+      }
+    }
+  }
+}
+
+// Table Container - Contenedor principal de la tabla con PrimeNG
+.table-container {
+  background: var(--white);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  
+  ::ng-deep {
+    .p-datatable {
+      font-size: 0.875rem;
+      
+      .p-datatable-thead > tr > th {
+        background: linear-gradient(135deg, var(--red-main) 0%, var(--red-dark) 100%);
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        color: var(--white);
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+        border: none;
+        
+        
+        &.th-image {
+          width: 80px;
+          text-align: center;
+        }
+        
+        &.th-id {
+          width: 70px;
+        }
+        
+        &.th-name {
+          min-width: 200px;
+        }
+        
+        &.th-category {
+          width: 120px;
+        }
+        
+        &.th-stock {
+          width: 120px;
+          text-align: center;
+        }
+        
+        &.th-price {
+          width: 130px;
+          text-align: right;
+        }
+        
+        &.th-status {
+          width: 130px;
+          text-align: center;
+        }
+        
+        &.th-date {
+          width: 110px;
+        }
+        
+        &.th-actions {
+          width: 180px;
+          text-align: center;
+        }
+      }
+      
+      .p-datatable-tbody > tr {
+        border-bottom: 1px solid var(--gray-dark-1);
+        transition: all 0.2s ease;
+        
+        &:hover {
+          background: var(--gray-light);
+        }
+        
+        &:last-child {
+          border-bottom: none;
+        }
+        
+        > td {
+          padding: 1rem;
+          vertical-align: middle;
+          border: none;
+        }
+      }
+      
+      .p-datatable-tfoot > tr > td {
+        padding: 0;
+        border: none;
+      }
+    }
+  }
+}
+
+// Table Cells - Estilos específicos para cada celda
+.td-image {
+  text-align: center;
+  
+  .product-image-wrapper {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto;
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--gray-light);
+    
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+}
+
+.td-id {
+  .product-id {
+    padding: 0.25rem 0.75rem;
+    background: var(--gray-light);
+    color: var(--black-light);
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+}
+
+.td-name {
+  .product-name-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    
+    .product-name {
+      font-weight: 600;
+      color: var(--black-dark);
+      line-height: 1.4;
+    }
+    
+    .product-description {
+      color: var(--black-light);
+      font-size: 0.75rem;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  }
+}
+
+.td-category {
+  .category-badge {
+    display: inline-block;
+    padding: 0.375rem 0.75rem;
+    background: var(--blue-extralight);
+    color: var(--blue-dark);
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.75rem;
+  }
+}
+
+.td-stock {
+  text-align: center;
+  
+  .stock-value {
+    display: inline-block;
+    padding: 0.375rem 0.75rem;
+    border-radius: 6px;
+    font-weight: 600;
+    
+    &.stock-ok {
+      background: var(--green-extralight);
+      color: var(--green-dark);
+    }
+    
+    &.stock-low {
+      background: var(--yellow-extralight);
+      color: var(--yellow-dark);
+      animation: pulse-warning 2s ease-in-out infinite;
+    }
+  }
+}
+
+// Animación de pulso para stock bajo
+@keyframes pulse-warning {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.td-price {
+  text-align: right;
+  
+  .price-value {
+    font-weight: 600;
+    color: var(--black-dark);
+    
+    &.iva {
+      color: var(--black-light);
+      
+      small {
+        display: block;
+        font-size: 0.625rem;
+        font-weight: 500;
+        margin-top: 0.125rem;
+      }
+    }
+    
+    &.total {
+      color: var(--red-main);
+      font-size: 1rem;
+      font-weight: 700;
+    }
+  }
+}
+
+.td-status {
+  text-align: center;
+  
+  .status-badge {
+    display: inline-block;
+    padding: 0.375rem 0.875rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    
+    &.status-available {
+      background: var(--green-extralight);
+      color: var(--green-dark);
+    }
+    
+    &.status-low-stock {
+      background: var(--yellow-extralight);
+      color: var(--yellow-dark);
+    }
+    
+    &.status-no-stock {
+      background: var(--red-extralight);
+      color: var(--red-dark);
+    }
+    
+    &.status-inactive {
+      background: var(--gray-light);
+      color: var(--black-light);
+    }
+  }
+}
+
+.td-date {
+  .date-value {
+    color: var(--black-light);
+    font-size: 0.8125rem;
+  }
+}
+
+// Action Buttons - Botones CRUD de cada fila con PrimeNG
+.td-actions {
+  .action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    align-items: center;
+    
+    ::ng-deep {
+      .p-button {
+        width: 36px;
+        height: 36px;
+        
+        &.btn-action {
+          transition: all 0.2s ease;
+          
+          &:hover {
+            transform: translateY(-2px);
+          }
+          
+          &:active {
+            transform: translateY(0);
+          }
+        }
+        
+        &.btn-view:hover {
+          box-shadow: 0 4px 12px rgba(0, 94, 220, 0.3);
+        }
+        
+        &.btn-edit:hover {
+          box-shadow: 0 4px 12px rgba(126, 33, 255, 0.3);
+        }
+        
+        &.btn-toggle:hover {
+          box-shadow: 0 4px 12px rgba(255, 175, 5, 0.3);
+        }
+        
+        &.btn-delete:hover {
+          box-shadow: 0 4px 12px rgba(225, 17, 28, 0.3);
+        }
+      }
+    }
+  }
+}
+
+// Table Footer - Información de totales
+.table-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--gray-dark-1);
+  background: var(--gray-light);
+  
+  .footer-info {
+    p {
+      margin: 0;
+      color: var(--black-light);
+      font-size: 0.875rem;
+      
+      strong {
+        color: var(--black-dark);
+        font-weight: 700;
+      }
+    }
+  }
+}
+
+// Responsive - Tablet y desktop
+@media (max-width: 1200px) {
+  .admin-products-container {
+    padding: 1rem; // Mantiene el cuadrado padre
+  }
+  
+  .products-table {
+    font-size: 0.8125rem;
+    
+    thead th,
+    tbody td {
+      padding: 0.75rem;
+    }
+  }
+}
+
+// Responsive - Mobile
+@media (max-width: 768px) {
+  .header .header-content {
+    flex-direction: column;
+    gap: 1rem;
+    
+    .header-left {
+      text-align: center;
+      
+      h1 {
+        font-size: 1.5rem;
+      }
+    }
+    
+    .header-actions {
+      width: 100%;
+      flex-direction: column;
+      
+      .btn-refresh,
+      .btn-create {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  }
+  
+  .tabs {
+    flex-direction: column;
+    
+    .tab-button {
+      font-size: 0.875rem;
+    }
+  }
+  
+  // Scroll horizontal para tabla en móviles
+  .table-wrapper {
+    overflow-x: scroll;
+  }
+  
+  .products-table {
+    min-width: 1200px;
+  }
+}
+
+// Modal de Crear Producto
+// Estilos aplicados directamente sin ::ng-deep
+
+.product-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  .form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    .form-label {
+      font-weight: 600;
+      color: var(--black-main);
+      font-size: 0.875rem;
+
+      .required {
+        color: var(--red-main);
+        margin-left: 0.25rem;
+      }
+    }
+
+    .error-message {
+      color: var(--red-main);
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+      display: block;
+    }
+
+    .field-hint {
+      color: var(--black-light);
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+      display: block;
+    }
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--gray-dark-1);
+    margin-top: 1rem;
+  }
+}
+
+// Responsive para formulario
+@media (max-width: 768px) {
+  .product-form {
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+      flex-direction: column-reverse;
+
+      button {
+        width: 100%;
+      }
+    }
+  }
+}

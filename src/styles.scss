@@ -1,0 +1,165 @@
+/* You can add global styles to this file, and also import other style files */
+
+/* Sistema de Grid y Columnas */
+@use 'styles/grid-system';
+
+/* Davivienda Brand Colors & Design System */
+:root {
+  --red-dark: #B70412;
+  --red-main: #E1111C;
+  --red-light: #FF3A44;
+  --red-extralight: #FBE7E8;
+
+  --blue-dark: #063C85;
+  --blue-main: #005EDC;
+  --blue-light: #3186F8;
+  --blue-extralight: #E5EEFB;
+
+  --green-dark: #04592F;
+  --green-main: #028846;
+  --green-light: #16BD6B;
+  --green-extralight: #E5F3EC;
+
+  --orange-dark: #BF5300;
+  --orange-main: #E96A08;
+  --orange-light: #FF872A;
+  --orange-extralight: #FEEEE5;
+
+  --black-dark: #1D1D1D;
+  --black-main: #404040;
+  --black-light: #6E6E6E;
+  --black-extralight: #8C8C8C;
+  --black-thin: #D9D9D9;
+
+  --yellow-dark: #FFAF05;
+  --yellow-main: #FDBB11;
+  --yellow-light: #FFD979;
+  --yellow-extralight: #FEF8E7;
+
+  --violet-dark: #520DB1;
+  --violet-main: #7E21FF;
+  --violet-light: #9261FF;
+  --violet-extralight: #F2E8FF;
+
+  --turquoise-dark: #008988;
+  --turquoise-main: #05C3C1;
+  --turquoise-light: #3BFAF8;
+  --turquoise-extralight: #E5F9F8;
+
+  --gold-dark: #A86900;
+  --gold-main: #D18800;
+  --gold-light: #D8AB58;
+  --gold-extralight: #FBEECE;
+
+  --gray-dark-1: #E0E1E3;
+  --gray-main: #EDEEF0;
+  --gray-light: #F2F3F5;
+  --gray-extralight: #F7F7F7;
+
+  --gray-blue-dark: #21262E;
+  --gray-blue-main: #343A45;
+  --gray-blue-light: #4B5C6F;
+  --gray-blue-extralight: #C7D2DA;
+  --gray-blue-thin: #F4F6F7;
+
+  --white: #FFFFFF;
+  --background-body: #ebecf0;
+
+  --font-family: Davivienda, sans-serif;
+  --font-family-condensed: Davivienda Condensed, sans-serif;
+  --roboto: Roboto, sans-serif;
+  --roboto-condensed: Roboto Condensed, sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  font-family: var(--font-family);
+  background-color: var(--background-body);
+  color: var(--black-main);
+}
+
+/* PrimeNG - Inputs siempre 100% de ancho */
+.p-inputtext,
+.p-textarea,
+.p-inputnumber,
+.p-inputmask,
+.p-dropdown,
+.p-multiselect,
+.p-calendar,
+.p-autocomplete,
+.p-password {
+  width: 100%;
+  
+  input {
+    width: 100%;
+  }
+  
+  .p-inputtext {
+    width: 100%;
+  }
+}
+
+/* PrimeNG Password específico */
+.p-password-input {
+  width: 100%;
+}
+
+/* Asegurar que los wrappers también sean 100% */
+.p-float-label,
+.p-inputwrapper {
+  width: 100%;
+}
+
+/* PrimeNG Card - Eliminar padding por defecto para control manual */
+.p-card .p-card-header,
+.p-card .p-card-body {
+  padding: 0;
+}
+
+/* Modal de Crear Producto - Estilos globales */
+.create-product-modal {
+  width: 90vw;
+  max-width: 600px;
+
+  .p-dialog-header {
+    background: linear-gradient(135deg, var(--red-main) 0%, var(--red-dark) 100%);
+    color: var(--white);
+    padding: 1.5rem;
+    border-radius: 16px 16px 0 0;
+
+    .p-dialog-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    .p-dialog-header-icon {
+      color: var(--white);
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+    }
+  }
+
+  .p-dialog-content {
+    padding: 2rem;
+    background: var(--gray-extralight);
+  }
+}
+
+/* Responsive para modal de producto */
+@media (max-width: 768px) {
+  .create-product-modal {
+    width: 95vw;
+
+    .p-dialog-content {
+      padding: 1.5rem;
+    }
+  }
+}

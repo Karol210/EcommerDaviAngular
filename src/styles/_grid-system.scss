@@ -1,0 +1,351 @@
+/**
+ * Sistema de Diseño - Grid Layout
+ * Sistema flexible de columnas y filas reutilizable en toda la aplicación
+ */
+
+@use 'sass:math';
+
+// ============================================
+// Variables del Sistema de Grid
+// ============================================
+$grid-columns: 12;
+$grid-gap-small: 0.5rem;
+$grid-gap-medium: 1rem;
+$grid-gap-large: 1.5rem;
+$grid-gap-xlarge: 2rem;
+
+// ============================================
+// Mixins Reutilizables
+// ============================================
+
+// Mixin para crear un grid con N columnas
+@mixin grid-cols($columns, $gap: $grid-gap-medium) {
+  display: grid;
+  grid-template-columns: repeat($columns, 1fr);
+  gap: $gap;
+}
+
+// Mixin para crear un row flexbox
+@mixin flex-row($gap: $grid-gap-medium) {
+  display: flex;
+  flex-wrap: wrap;
+  margin-right: calc($gap / -2);
+  margin-left: calc($gap / -2);
+  
+  > * {
+    padding-right: calc($gap / 2);
+    padding-left: calc($gap / 2);
+  }
+}
+
+// Mixin para columna flexbox
+@mixin flex-col($size, $total: $grid-columns) {
+  flex: 0 0 math.percentage(math.div($size, $total));
+  max-width: math.percentage(math.div($size, $total));
+}
+
+// ============================================
+// Container
+// ============================================
+.container {
+  width: 100%;
+  padding-right: $grid-gap-medium;
+  padding-left: $grid-gap-medium;
+  margin-right: auto;
+  margin-left: auto;
+
+  &--fluid {
+    max-width: 100%;
+  }
+
+  &--sm {
+    max-width: 640px;
+  }
+
+  &--md {
+    max-width: 768px;
+  }
+
+  &--lg {
+    max-width: 1024px;
+  }
+
+  &--xl {
+    max-width: 1280px;
+  }
+}
+
+// ============================================
+// Row (Fila)
+// ============================================
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-right: calc($grid-gap-medium / -2);
+  margin-left: calc($grid-gap-medium / -2);
+
+  // Variantes de gap
+  &--gap-sm {
+    margin-right: calc($grid-gap-small / -2);
+    margin-left: calc($grid-gap-small / -2);
+    
+    > [class*="col-"] {
+      padding-right: calc($grid-gap-small / 2);
+      padding-left: calc($grid-gap-small / 2);
+    }
+  }
+
+  &--gap-md {
+    margin-right: calc($grid-gap-medium / -2);
+    margin-left: calc($grid-gap-medium / -2);
+    
+    > [class*="col-"] {
+      padding-right: calc($grid-gap-medium / 2);
+      padding-left: calc($grid-gap-medium / 2);
+    }
+  }
+
+  &--gap-lg {
+    margin-right: calc($grid-gap-large / -2);
+    margin-left: calc($grid-gap-large / -2);
+    
+    > [class*="col-"] {
+      padding-right: calc($grid-gap-large / 2);
+      padding-left: calc($grid-gap-large / 2);
+    }
+  }
+
+  &--gap-xl {
+    margin-right: calc($grid-gap-xlarge / -2);
+    margin-left: calc($grid-gap-xlarge / -2);
+    
+    > [class*="col-"] {
+      padding-right: calc($grid-gap-xlarge / 2);
+      padding-left: calc($grid-gap-xlarge / 2);
+    }
+  }
+
+  // Sin gutters
+  &--no-gutters {
+    margin-right: 0;
+    margin-left: 0;
+    
+    > [class*="col-"] {
+      padding-right: 0;
+      padding-left: 0;
+    }
+  }
+}
+
+// ============================================
+// Grid (CSS Grid)
+// ============================================
+.grid {
+  display: grid;
+  gap: $grid-gap-medium;
+
+  // Variantes de gap
+  &--gap-sm { gap: $grid-gap-small; }
+  &--gap-md { gap: $grid-gap-medium; }
+  &--gap-lg { gap: $grid-gap-large; }
+  &--gap-xl { gap: $grid-gap-xlarge; }
+
+  // Columnas predefinidas
+  &--cols-1 { grid-template-columns: repeat(1, 1fr); }
+  &--cols-2 { grid-template-columns: repeat(2, 1fr); }
+  &--cols-3 { grid-template-columns: repeat(3, 1fr); }
+  &--cols-4 { grid-template-columns: repeat(4, 1fr); }
+  &--cols-5 { grid-template-columns: repeat(5, 1fr); }
+  &--cols-6 { grid-template-columns: repeat(6, 1fr); }
+  &--cols-12 { grid-template-columns: repeat(12, 1fr); }
+
+  // Auto-fit y auto-fill
+  &--auto-fit {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+
+  &--auto-fill {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+}
+
+// ============================================
+// Columnas (Flexbox)
+// ============================================
+[class*="col-"] {
+  position: relative;
+  width: 100%;
+  padding-right: calc($grid-gap-medium / 2);
+  padding-left: calc($grid-gap-medium / 2);
+}
+
+// Columna automática
+.col {
+  flex-basis: 0;
+  flex-grow: 1;
+  max-width: 100%;
+}
+
+// Columna auto-width
+.col-auto {
+  flex: 0 0 auto;
+  width: auto;
+  max-width: 100%;
+}
+
+// Sistema de 12 columnas
+@for $i from 1 through $grid-columns {
+  .col-#{$i} {
+    flex: 0 0 math.percentage(math.div($i, $grid-columns));
+    max-width: math.percentage(math.div($i, $grid-columns));
+  }
+}
+
+// ============================================
+// Breakpoints Responsive
+// ============================================
+$breakpoints: (
+  sm: 640px,
+  md: 768px,
+  lg: 1024px,
+  xl: 1280px,
+  xxl: 1536px
+);
+
+// Generar clases responsivas para grid
+@each $breakpoint, $size in $breakpoints {
+  @media (min-width: $size) {
+    // Grid columns
+    .grid--#{$breakpoint}-cols-1 { grid-template-columns: repeat(1, 1fr); }
+    .grid--#{$breakpoint}-cols-2 { grid-template-columns: repeat(2, 1fr); }
+    .grid--#{$breakpoint}-cols-3 { grid-template-columns: repeat(3, 1fr); }
+    .grid--#{$breakpoint}-cols-4 { grid-template-columns: repeat(4, 1fr); }
+    .grid--#{$breakpoint}-cols-5 { grid-template-columns: repeat(5, 1fr); }
+    .grid--#{$breakpoint}-cols-6 { grid-template-columns: repeat(6, 1fr); }
+    .grid--#{$breakpoint}-cols-12 { grid-template-columns: repeat(12, 1fr); }
+
+    // Flexbox columns
+    @for $i from 1 through $grid-columns {
+      .col-#{$breakpoint}-#{$i} {
+        flex: 0 0 math.percentage(math.div($i, $grid-columns));
+        max-width: math.percentage(math.div($i, $grid-columns));
+      }
+    }
+
+    .col-#{$breakpoint} {
+      flex-basis: 0;
+      flex-grow: 1;
+      max-width: 100%;
+    }
+
+    .col-#{$breakpoint}-auto {
+      flex: 0 0 auto;
+      width: auto;
+      max-width: 100%;
+    }
+  }
+}
+
+// ============================================
+// Utilidades de Alineación
+// ============================================
+
+// Alineación horizontal (justify)
+.justify-start { justify-content: flex-start; }
+.justify-end { justify-content: flex-end; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.justify-around { justify-content: space-around; }
+.justify-evenly { justify-content: space-evenly; }
+
+// Alineación vertical (align)
+.align-start { align-items: flex-start; }
+.align-end { align-items: flex-end; }
+.align-center { align-items: center; }
+.align-baseline { align-items: baseline; }
+.align-stretch { align-items: stretch; }
+
+// Dirección
+.flex-row { flex-direction: row; }
+.flex-row-reverse { flex-direction: row-reverse; }
+.flex-col { flex-direction: column; }
+.flex-col-reverse { flex-direction: column-reverse; }
+
+// Wrap
+.flex-wrap { flex-wrap: wrap; }
+.flex-nowrap { flex-wrap: nowrap; }
+.flex-wrap-reverse { flex-wrap: wrap-reverse; }
+
+// ============================================
+// Utilidades de Gap
+// ============================================
+.gap-0 { gap: 0; }
+.gap-sm { gap: $grid-gap-small; }
+.gap-md { gap: $grid-gap-medium; }
+.gap-lg { gap: $grid-gap-large; }
+.gap-xl { gap: $grid-gap-xlarge; }
+
+.gap-x-0 { column-gap: 0; }
+.gap-x-sm { column-gap: $grid-gap-small; }
+.gap-x-md { column-gap: $grid-gap-medium; }
+.gap-x-lg { column-gap: $grid-gap-large; }
+.gap-x-xl { column-gap: $grid-gap-xlarge; }
+
+.gap-y-0 { row-gap: 0; }
+.gap-y-sm { row-gap: $grid-gap-small; }
+.gap-y-md { row-gap: $grid-gap-medium; }
+.gap-y-lg { row-gap: $grid-gap-large; }
+.gap-y-xl { row-gap: $grid-gap-xlarge; }
+
+// ============================================
+// Utilidades de Order
+// ============================================
+@for $i from 1 through 12 {
+  .order-#{$i} {
+    order: $i;
+  }
+}
+
+.order-first { order: -1; }
+.order-last { order: 13; }
+.order-none { order: 0; }
+
+// ============================================
+// Ejemplos de Uso
+// ============================================
+
+/*
+  EJEMPLO 1: Grid simple de 2 columnas
+  <div class="grid grid--cols-2 grid--gap-md">
+    <div>Columna 1</div>
+    <div>Columna 2</div>
+  </div>
+
+  EJEMPLO 2: Flexbox con 3 columnas iguales
+  <div class="row">
+    <div class="col-4">Columna 1</div>
+    <div class="col-4">Columna 2</div>
+    <div class="col-4">Columna 3</div>
+  </div>
+
+  EJEMPLO 3: Grid responsive
+  <div class="grid grid--cols-1 grid--md-cols-2 grid--lg-cols-3">
+    <div>Item 1</div>
+    <div>Item 2</div>
+    <div>Item 3</div>
+  </div>
+
+  EJEMPLO 4: Flexbox responsive con diferentes tamaños
+  <div class="row">
+    <div class="col-12 col-md-6 col-lg-4">Responsive</div>
+    <div class="col-12 col-md-6 col-lg-8">Responsive</div>
+  </div>
+
+  EJEMPLO 5: Grid con auto-fit
+  <div class="grid grid--auto-fit grid--gap-lg">
+    <div>Item flexible 1</div>
+    <div>Item flexible 2</div>
+    <div>Item flexible 3</div>
+  </div>
+*/
+

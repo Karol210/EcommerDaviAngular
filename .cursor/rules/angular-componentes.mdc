@@ -1,0 +1,213 @@
+---
+description: Sintaxis moderna de Angular 19 (control flow, signals, standalone components)
+globs:
+  - "**/*.ts"
+  - "**/*.html"
+alwaysApply: true
+---
+
+# Angular 19 - Componentes y Sintaxis Moderna
+
+## Stack Tecnológico
+Angular v19 con características modernas: standalone components, signals, nueva sintaxis de control de flujo.
+
+## 1. Sintaxis de Control de Flujo
+
+**Usar SOLO la nueva sintaxis, nunca directivas estructurales antiguas:**
+
+```typescript
+// Condicionales
+@if (condition) {
+  <div>Content</div>
+} @else if (other) {
+  <div>Other</div>
+} @else {
+  <div>Default</div>
+}
+
+// Iteraciones - siempre con track
+@for (item of items; track item.id) {
+  <div>{{ item.name }}</div>
+} @empty {
+  <div>Sin resultados</div>
+}
+
+// Switch
+@switch (value) {
+  @case ('A') { <div>Option A</div> }
+  @case ('B') { <div>Option B</div> }
+  @default { <div>Default</div> }
+}
+
+// Lazy loading de componentes
+@defer (on viewport) {
+  <heavy-component />
+} @placeholder {
+  <div>Loading...</div>
+} @error {
+  <div>Error</div>
+}
+```
+
+**❌ NO usar:** `*ngIf`, `*ngFor`, `*ngSwitch` - están obsoletas
+
+## 2. Componentes Standalone
+
+Todos los componentes deben ser standalone:
+
+```typescript
+import { Component } from '@angular/core';
+import { ButtonModule } from 'primeng/button';
+
+@Component({
+  selector: 'app-my-component',
+  standalone: true,
+  imports: [ButtonModule],
+  templateUrl: './my-component.component.html',
+  styleUrl: './my-component.component.scss'
+})
+export class MyComponentComponent {}
+```
+
+## 3. Signals - Reactividad
+
+Preferir signals para estado reactivo:
+
+```typescript
+import { Component, signal, computed, effect } from '@angular/core';
+
+@Component({...})
+export class MyComponent {
+  count = signal(0);
+  doubled = computed(() => this.count() * 2);
+  
+  constructor() {
+    effect(() => console.log('Count:', this.count()));
+  }
+  
+  increment() {
+    this.count.update(v => v + 1);
+  }
+}
+```
+
+En templates usar con paréntesis: `{{ count() }}`
+
+## 4. Inyección de Dependencias
+
+Usar función `inject()` con `readonly`:
+
+```typescript
+private readonly router = inject(Router);
+private readonly messageService = inject(MessageService);
+```
+
+**Ver:** `limpieza-codigo.mdc` para uso completo de readonly.
+
+## 5. Formularios Reactivos
+
+```typescript
+import { Component, inject } from '@angular/core';
+import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
+import { InputTextModule } from 'primeng/inputtext';
+
+@Component({
+  standalone: true,
+  imports: [ReactiveFormsModule, InputTextModule]
+})
+export class MyFormComponent {
+  private readonly fb = inject(FormBuilder);
+  
+  form = this.fb.group({
+    name: ['', [Validators.required, Validators.minLength(3)]],
+    email: ['', [Validators.required, Validators.email]]
+  });
+  
+  onSubmit() {
+    if (this.form.valid) {
+      console.log(this.form.value);
+    }
+  }
+}
+```
+
+## 6. Servicios con Signals
+
+```typescript
+import { Injectable, signal, computed } from '@angular/core';
+
+@Injectable({ providedIn: 'root' })
+export class UserService {
+  private readonly state = signal<User | null>(null);
+  
+  readonly user = this.state.asReadonly();
+  readonly isAuthenticated = computed(() => this.state() !== null);
+  
+  setUser(user: User) {
+    this.state.set(user);
+  }
+}
+```
+
+## 7. Routing y Lazy Loading
+
+```typescript
+import { Routes } from '@angular/router';
+
+export const routes: Routes = [
+  {
+    path: 'home',
+    loadComponent: () => import('./pages/home/home.component')
+      .then(m => m.HomeComponent)
+  },
+  {
+    path: 'dashboard',
+    loadChildren: () => import('./pages/dashboard/dashboard.routes')
+      .then(m => m.DASHBOARD_ROUTES)
+  }
+];
+```
+
+## 8. Estructura de Proyecto
+
+```
+src/app/
+├── core/           # Servicios singleton, guards, interceptors
+├── shared/         # Componentes, directivas, pipes compartidos
+├── features/       # Funcionalidades por dominio
+│   └── users/
+│       ├── components/
+│       ├── services/
+│       └── models/
+└── pages/          # Páginas/rutas principales
+```
+
+## 9. Convenciones de Nomenclatura
+
+- Componentes: `user-list.component.ts`
+- Servicios: `user.service.ts`
+- Directivas: `highlight.directive.ts`
+- Guards: `auth.guard.ts`
+- Interfaces: `User`, `Product` (PascalCase)
+
+## 10. TypeScript
+
+- Usar tipos explícitos siempre
+- Interfaces para modelos de datos
+- Evitar `any`, usar `unknown` si necesario
+- Activar strict mode
+
+## 11. Performance
+
+- Usar `@defer` para componentes pesados
+- Implementar `track` en todos los `@for`
+- Aprovechar signals y computed para optimizar renders
+
+---
+
+**Ver también:**
+- `limpieza-codigo.mdc` - readonly, tipos, imports
+- `espaciado-componentes.mdc` - Principio del Cuadrado
+- `documentacion-codigo.mdc` - JSDoc
+
+**Versión:** Angular 19.x

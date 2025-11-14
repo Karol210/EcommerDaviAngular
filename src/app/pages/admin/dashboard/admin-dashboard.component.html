@@ -1,0 +1,50 @@
+<div class="admin-dashboard">
+  <!-- Welcome Section -->
+  <p-card class="welcome-card">
+    <div class="welcome-card__content">
+      <div class="welcome-card__text">
+        <div class="welcome-card__greeting">
+          <h1 class="welcome-card__title">
+            ¡Bienvenido, <span class="welcome-card__name">{{ welcomeName() }}</span>!
+          </h1>
+          <p class="welcome-card__subtitle">Panel de Administración Davivienda</p>
+        </div>
+        <p class="welcome-card__description">
+          Gestiona y administra los productos financieros de Davivienda. 
+          Desde este panel puedes supervisar ventas, productos, usuarios y todas las operaciones del sistema.
+        </p>
+      </div>
+      <div class="welcome-card__icon">
+        <i class="pi pi-shield"></i>
+      </div>
+    </div>
+  </p-card>
+
+  <div class="admin-dashboard__header">
+    <h2 class="admin-dashboard__title">Estadísticas Generales</h2>
+    <p class="admin-dashboard__subtitle">Resumen de actividad del sistema</p>
+  </div>
+
+  <div class="admin-dashboard__stats">
+    @for (stat of stats(); track stat.title) {
+      <p-card class="stat-card">
+        <div class="stat-card__content">
+          <div 
+            class="stat-card__icon"
+            [style.background-color]="stat.bgColor">
+            <i 
+              class="pi {{ stat.icon }}"
+              [style.color]="stat.color"></i>
+          </div>
+          <div class="stat-card__info">
+            <span class="stat-card__title">{{ stat.title }}</span>
+            <span 
+              class="stat-card__value"
+              [style.color]="stat.color">{{ stat.value }}</span>
+          </div>
+        </div>
+      </p-card>
+    }
+  </div>
+</div>
+

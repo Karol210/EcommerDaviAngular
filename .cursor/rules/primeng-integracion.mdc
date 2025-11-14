@@ -1,0 +1,177 @@
+---
+description: PrimeNG v19 con Design Tokens. NO usar ::ng-deep en componentes
+globs:
+  - "**/*.ts"
+  - "**/*.scss"
+  - "**/app.config.ts"
+  - "**/styles.scss"
+alwaysApply: true
+---
+
+# PrimeNG - Integración y Configuración
+
+## Regla General
+Usar PrimeNG v19+ con sistema de Design Tokens (JavaScript) y estilos globales CSS. NO usar `::ng-deep` en componentes individuales.
+
+## 1. Configuración en app.config.ts
+
+### Imports Correctos
+
+```typescript
+// ✅ CORRECTO
+import { providePrimeNG } from 'primeng/config';  // NO de 'primeng/api'
+import Aura from '@primeng/themes/aura';           // Default import
+import { definePreset } from '@primeng/themes';
+
+// ❌ INCORRECTO
+import { providePrimeNG } from 'primeng/api';
+import { Aura } from '@primeng/themes/aura';      // No es named export
+```
+
+### Tema Personalizado con Design Tokens
+
+```typescript
+import { ApplicationConfig } from '@angular/core';
+import { provideAnimations } from '@angular/platform-browser/animations';
+import { providePrimeNG } from 'primeng/config';
+import { definePreset } from '@primeng/themes';
+import Aura from '@primeng/themes/aura';
+import { MessageService, ConfirmationService } from 'primeng/api';
+
+const DaviviendaPreset = definePreset(Aura, {
+  semantic: {
+    primary: {
+      // Definir escala de colores del 50 al 950
+      // usando los valores del proyecto (ver variables-css-colores.mdc)
+    },
+    colorScheme: {
+      light: {
+        primary: {
+          color: '{primary.500}',
+          contrastColor: '{surface.0}',
+          hoverColor: '{primary.600}',
+          activeColor: '{primary.600}'
+        }
+      }
+    }
+  }
+});
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideAnimations(),
+    MessageService,
+    ConfirmationService,
+    providePrimeNG({
+      theme: {
+        preset: DaviviendaPreset,
+        options: {
+          prefix: 'p',
+          darkModeSelector: false,
+          cssLayer: false
+        }
+      }
+    })
+  ]
+};
+```
+
+## 2. Estilos Globales en styles.scss
+
+### Inputs - Ancho 100%
+
+**IMPORTANTE:** Todos los inputs de PrimeNG deben ocupar el 100% del contenedor:
+
+```scss
+.p-inputtext,
+.p-textarea,
+.p-password,
+.p-dropdown,
+.p-calendar,
+.p-inputnumber {
+  width: 100%;
+  
+  input {
+    width: 100%;
+  }
+}
+
+.p-password-input {
+  width: 100%;
+}
+
+.p-float-label,
+.p-inputwrapper {
+  width: 100%;
+}
+```
+
+### Cards - Sin Padding por Defecto
+
+Para control manual del espaciado (Principio del Cuadrado):
+
+```scss
+.p-card .p-card-header,
+.p-card .p-card-body {
+  padding: 0;
+}
+```
+
+## 3. Uso de Componentes
+
+Importar módulos en componentes standalone:
+
+```typescript
+import { ButtonModule } from 'primeng/button';
+import { TableModule } from 'primeng/table';
+
+@Component({
+  standalone: true,
+  imports: [ButtonModule, TableModule]
+})
+```
+
+**Ver:** `angular-componentes.mdc` para sintaxis completa de componentes.
+
+## 4. Evitar ::ng-deep
+
+**❌ NO USAR** en componentes individuales:
+
+```scss
+// component.scss - MAL
+.my-component {
+  ::ng-deep {
+    .p-button {
+      background-color: var(--red-main);
+    }
+  }
+}
+```
+
+**Problemas:**
+- Duplicación de código
+- Difícil de mantener
+- Deprecated
+- Aumenta bundle size
+
+**✅ USAR** tema global en `styles.scss`:
+
+```scss
+// styles.scss - BIEN
+.p-button {
+  font-family: var(--font-family);
+  
+  &.p-button-primary {
+    background-color: var(--red-main);
+  }
+}
+```
+
+## Regla de Oro
+
+**Si necesitas `::ng-deep` para estilar un componente de PrimeNG, probablemente deberías agregarlo al tema global en su lugar.**
+
+---
+
+**Versión:** PrimeNG 19.x | Angular 19.x  
+**Sistema:** Design Tokens (JavaScript) + Estilos Globales (CSS)

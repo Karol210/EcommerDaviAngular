@@ -1,0 +1,234 @@
+/**
+ * Landing Component Styles
+ * Página principal con hero section y grid de productos
+ */
+
+.landing {
+  min-height: calc(100vh - 80px);
+  background-color: var(--background-body);
+}
+
+/* Hero Section */
+.hero {
+  background: linear-gradient(135deg, var(--red-main) 0%, var(--red-dark) 100%);
+  color: var(--white);
+  padding: 4rem 2rem;
+
+  &__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  &__title {
+    font-family: var(--font-family);
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0 0 1rem 0;
+  }
+
+  &__subtitle {
+    font-size: 1.25rem;
+    opacity: 0.95;
+    margin: 0;
+  }
+}
+
+/* Products Section */
+.products {
+  padding: 3rem 2rem;
+
+  &__container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  &__title {
+    font-family: var(--font-family);
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--black-dark);
+    margin: 0 0 2rem 0;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+  }
+
+  &__empty {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    color: var(--black-light);
+    gap: 1rem;
+  }
+}
+
+/* Skeleton Loading */
+.product-skeleton {
+  background: var(--white);
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Product Card - Principio del Cuadrado */
+.product-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  }
+
+  &__image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px 8px 0 0;
+  }
+
+  &__no-image {
+    width: 100%;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface-ground);
+    color: var(--black-light);
+    border-radius: 8px 8px 0 0;
+  }
+
+  // ✅ CUADRADO: Contenedor principal con padding lateral
+  &__content {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    height: 100%;
+  }
+
+  &__name {
+    font-family: var(--font-family);
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--black-dark);
+    margin: 0;
+    line-height: 1.3;
+  }
+
+  &__category {
+    font-size: 0.75rem;
+    color: var(--red-main);
+    font-weight: 600;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  &__description {
+    font-size: 0.875rem;
+    color: var(--black-light);
+    margin: 0;
+    line-height: 1.5;
+    flex: 1;
+  }
+
+  // Footer del producto con precio y botón
+  &__footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+    padding-top: 1rem;
+    gap: 1rem;
+  }
+
+  &__prices {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  &__price-total {
+    font-family: var(--font-family);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--red-main);
+    line-height: 1.2;
+  }
+
+  &__price-tax {
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: var(--text-color-secondary);
+    line-height: 1.2;
+  }
+
+  &__price-base {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-color-secondary);
+    line-height: 1.2;
+  }
+
+  &__out-of-stock {
+    font-size: 0.875rem;
+    color: var(--orange-main);
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    background-color: var(--orange-extralight);
+    border-radius: 4px;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .hero {
+    padding: 3rem 1rem;
+
+    &__title {
+      font-size: 2rem;
+    }
+
+    &__subtitle {
+      font-size: 1rem;
+    }
+  }
+
+  .products {
+    padding: 2rem 1rem;
+
+    &__title {
+      font-size: 1.5rem;
+    }
+
+    &__grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+  }
+
+  .product-card {
+    &__price-total {
+      font-size: 1.25rem;
+    }
+
+    &__price-tax {
+      font-size: 0.7rem;
+    }
+
+    &__price-base {
+      font-size: 0.75rem;
+    }
+  }
+}
+

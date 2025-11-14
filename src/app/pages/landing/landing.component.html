@@ -1,0 +1,77 @@
+<app-header />
+
+<main class="landing">
+  <section class="hero">
+    <div class="hero__container">
+      <h1 class="hero__title">Bienvenido a Davivienda Marketplace</h1>
+      <p class="hero__subtitle">Descubre los mejores productos con las mejores ofertas</p>
+    </div>
+  </section>
+
+  <section class="products">
+    <div class="products__container">
+      <h2 class="products__title">Productos Destacados</h2>
+
+      @if (loading()) {
+        <div class="products__grid">
+          @for (item of [1, 2, 3, 4]; track item) {
+            <div class="product-skeleton">
+              <p-skeleton width="100%" height="200px" />
+              <p-skeleton width="80%" height="1.5rem" styleClass="mt-3" />
+              <p-skeleton width="60%" height="1rem" styleClass="mt-2" />
+              <p-skeleton width="100%" height="2.5rem" styleClass="mt-3" />
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="products__grid">
+          @for (product of products(); track product.id) {
+            <p-card class="product-card">
+              <ng-template pTemplate="header">
+                @if (product.imageUrl) {
+                  <img 
+                    [src]="product.imageUrl" 
+                    [alt]="product.name"
+                    class="product-card__image" />
+                } @else {
+                  <div class="product-card__no-image">
+                    <i class="pi pi-image" style="font-size: 3rem"></i>
+                  </div>
+                }
+              </ng-template>
+              
+              <div class="product-card__content">
+                <h3 class="product-card__name">{{ product.name }}</h3>
+                <p class="product-card__category">{{ product.categoryName }}</p>
+                <p class="product-card__description">{{ product.description }}</p>
+                <div class="product-card__footer">
+                  <div class="product-card__prices">
+                    <span class="product-card__price-total">{{ formatPrice(product.totalPrice) }}</span>
+                    <span class="product-card__price-tax">IVA: {{ formatPrice(product.taxAmount) }}</span>
+                    <span class="product-card__price-base">Precio base: {{ formatPrice(product.unitPrice) }}</span>
+                  </div>
+                  
+                  @if (product.active) {
+                    <p-button
+                      label="Agregar"
+                      icon="pi pi-shopping-cart"
+                      (onClick)="addToCart(product)"
+                      styleClass="product-card__button" />
+                  } @else {
+                    <span class="product-card__out-of-stock">No disponible</span>
+                  }
+                </div>
+              </div>
+            </p-card>
+          } @empty {
+            <div class="products__empty">
+              <i class="pi pi-inbox" style="font-size: 3rem"></i>
+              <p>No hay productos disponibles</p>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </section>
+</main>
+

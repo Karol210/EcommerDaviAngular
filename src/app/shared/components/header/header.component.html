@@ -1,0 +1,146 @@
+<header class="header">
+  <div class="header__container">
+    <div class="header__logo">
+      <h1 class="header__logo-text">Davivienda</h1>
+      <span class="header__logo-subtitle">Marketplace</span>
+    </div>
+
+    <nav class="header__nav">
+      @if (!isAuthenticated()) {
+        <p-button
+          label="Iniciar Sesión"
+          icon="pi pi-user"
+          (onClick)="navigateToLogin()"
+          [text]="true"
+          styleClass="header__button" />
+      } @else {
+        <div class="header__user-info">
+          <button 
+            class="header__user-name"
+            (click)="openProfileModal()"
+            title="Ver mi perfil">
+            <i class="pi pi-user"></i>
+            <span>Hola, {{ userProfile()?.nombre || currentUser() }}</span>
+          </button>
+          <p-button
+            label="Cerrar Sesión"
+            icon="pi pi-sign-out"
+            (onClick)="logout()"
+            [text]="true"
+            styleClass="header__button header__logout-button"
+            severity="secondary" />
+        </div>
+      }
+
+      <p-button
+        #cartButton
+        icon="pi pi-shopping-cart"
+        (onClick)="toggleCartPanel($event)"
+        [text]="true"
+        styleClass="header__button header__cart-button"
+        [badge]="cartItemsCount().toString()"
+        [badgeClass]="cartItemsCount() > 0 ? 'cart-badge' : 'cart-badge--empty'" />
+    </nav>
+  </div>
+</header>
+
+<!-- Modal de autenticación -->
+<app-auth-modal />
+
+<!-- Modal de perfil de usuario -->
+<app-user-profile-modal />
+
+<!-- Panel del carrito -->
+<p-overlayPanel #cartPanel styleClass="cart-overlay">
+  <ng-template pTemplate="content">
+    <div class="cart-panel">
+      <div class="cart-panel__header">
+        <h3 class="cart-panel__title">
+          <i class="pi pi-shopping-cart"></i>
+          Mi Carrito
+        </h3>
+        <span class="cart-panel__count">{{ cartItemsCount() }} {{ cartItemsCount() === 1 ? 'artículo' : 'artículos' }}</span>
+      </div>
+
+      @if (cartItems().length === 0) {
+        <div class="cart-panel__empty">
+          <i class="pi pi-shopping-cart cart-panel__empty-icon"></i>
+          <p class="cart-panel__empty-text">Tu carrito está vacío</p>
+          <p class="cart-panel__empty-subtext">Agrega productos para comenzar</p>
+        </div>
+      } @else {
+        <div class="cart-panel__items">
+          @for (item of cartItems(); track item.product.id) {
+            <div class="cart-item">
+              <div class="cart-item__image">
+                @if (item.product.imageUrl) {
+                  <img [src]="item.product.imageUrl" [alt]="item.product.name" />
+                } @else {
+                  <div class="cart-item__image-placeholder">
+                    <i class="pi pi-image"></i>
+                  </div>
+                }
+              </div>
+
+              <div class="cart-item__info">
+                <h4 class="cart-item__name">{{ item.product.name }}</h4>
+                <p class="cart-item__description">{{ item.product.description }}</p>
+                <div class="cart-item__prices">
+                  <p class="cart-item__price-total">{{ formatPrice(item.product.totalPrice) }}</p>
+                  <p class="cart-item__price-tax">IVA: {{ formatPrice(item.product.taxAmount) }}</p>
+                  <p class="cart-item__price-base">Precio base: {{ formatPrice(item.product.unitPrice) }}</p>
+                </div>
+              </div>
+
+              <div class="cart-item__actions">
+                <div class="cart-item__quantity">
+                  <p-inputNumber
+                    [(ngModel)]="item.quantity"
+                    (ngModelChange)="updateQuantity(item.product.id, $event)"
+                    [showButtons]="true"
+                    buttonLayout="horizontal"
+                    [min]="1"
+                    [max]="99"
+                    inputStyleClass="cart-item__quantity-input"
+                    decrementButtonClass="cart-item__quantity-btn"
+                    incrementButtonClass="cart-item__quantity-btn">
+                    <ng-template pTemplate="decrementicon">
+                      <i class="pi pi-minus"></i>
+                    </ng-template>
+                    <ng-template pTemplate="incrementicon">
+                      <i class="pi pi-plus"></i>
+                    </ng-template>
+                  </p-inputNumber>
+                </div>
+
+                <button
+                  class="cart-item__remove"
+                  (click)="removeFromCart(item.product.id)"
+                  title="Eliminar producto">
+                  <i class="pi pi-trash"></i>
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="cart-panel__footer">
+          <div class="cart-panel__total">
+            <span class="cart-panel__total-label">Total:</span>
+            <span class="cart-panel__total-price">{{ formatPrice(totalPrice()) }}</span>
+          </div>
+
+          <p-button
+            label="Comprar Ahora"
+            icon="pi pi-check"
+            (onClick)="proceedToCheckout()"
+            styleClass="cart-panel__checkout-btn"
+            [disabled]="cartItems().length === 0" />
+        </div>
+      }
+    </div>
+  </ng-template>
+</p-overlayPanel>
+
+<!-- Modal de Checkout -->
+<app-checkout-modal />

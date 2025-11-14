@@ -1,0 +1,419 @@
+<p-confirmDialog />
+
+<div class="admin-products-container">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-content">
+      <div class="header-left">
+        <h1>Gestión de Productos</h1>
+        <p class="subtitle">Administra tu inventario de productos</p>
+      </div>
+      <div class="header-actions">
+        <p-button 
+          label="Actualizar"
+          icon="pi pi-refresh"
+          [outlined]="true"
+          severity="secondary"
+          (onClick)="refreshProducts()"
+          [disabled]="loading()"
+          styleClass="btn-refresh" />
+        
+        <p-button 
+          label="Nuevo Producto"
+          icon="pi pi-plus"
+          severity="danger"
+          (onClick)="createProduct()"
+          styleClass="btn-create" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <p-button 
+      [label]="'Productos Disponibles'"
+      icon="pi pi-check-circle"
+      [badge]="availableProducts().length.toString()"
+      [outlined]="activeTab() !== 'available'"
+      [severity]="activeTab() === 'available' ? 'danger' : 'secondary'"
+      (onClick)="setActiveTab('available')"
+      styleClass="tab-button" />
+    
+    <p-button 
+      [label]="'Sin Stock / Inactivos'"
+      icon="pi pi-exclamation-triangle"
+      [badge]="problemProducts().length.toString()"
+      badgeSeverity="warn"
+      [outlined]="activeTab() !== 'problems'"
+      [severity]="activeTab() === 'problems' ? 'warn' : 'secondary'"
+      (onClick)="setActiveTab('problems')"
+      styleClass="tab-button" />
+  </div>
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p>Cargando productos...</p>
+    </div>
+  }
+
+  <!-- Empty State -->
+  @if (!loading() && displayedProducts().length === 0) {
+    <div class="empty-state">
+      <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M32 56C45.2548 56 56 45.2548 56 32C56 18.7452 45.2548 8 32 8C18.7452 8 8 18.7452 8 32C8 45.2548 18.7452 56 32 56Z" stroke="currentColor" stroke-width="3"/>
+        <path d="M32 20V32M32 44H32.02" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <h3>No hay productos en esta categoría</h3>
+      @if (activeTab() === 'available') {
+        <p>Todos los productos tienen problemas de disponibilidad</p>
+      } @else {
+        <p>¡Excelente! Todos los productos están disponibles</p>
+      }
+      <p-button 
+        label="Crear Primer Producto"
+        icon="pi pi-plus"
+        severity="danger"
+        (onClick)="createProduct()"
+        styleClass="btn-create" />
+    </div>
+  }
+
+  <!-- Products Table -->
+  @if (!loading() && displayedProducts().length > 0) {
+    <div class="table-container">
+      <p-table 
+        [value]="displayedProducts()" 
+        [tableStyle]="{ 'min-width': '50rem' }"
+        styleClass="products-table"
+        [scrollable]="true"
+        scrollHeight="flex">
+        
+        <ng-template pTemplate="header">
+          <tr>
+            <th class="th-image">Imagen</th>
+            <th class="th-id">ID</th>
+            <th class="th-name">Nombre</th>
+            <th class="th-category">Categoría</th>
+            <th class="th-stock">Stock</th>
+            <th class="th-price">Precio Base</th>
+            <th class="th-price">IVA</th>
+            <th class="th-price">Precio Total</th>
+            <th class="th-status">Estado</th>
+            <th class="th-date">Creado</th>
+            <th class="th-actions">Acciones</th>
+          </tr>
+        </ng-template>
+        
+        <ng-template pTemplate="body" let-product>
+          <tr>
+            <!-- Imagen -->
+            <td class="td-image">
+              <div class="product-image-wrapper">
+                <img 
+                  [src]="product.imageUrl || 'https://via.placeholder.com/80x80?text=Sin+Imagen'" 
+                  [alt]="product.name"
+                  (error)="$any($event.target).src='https://via.placeholder.com/80x80?text=Sin+Imagen'">
+              </div>
+            </td>
+
+            <!-- ID -->
+            <td class="td-id">
+              <span class="product-id">#{{ product.id }}</span>
+            </td>
+
+            <!-- Nombre -->
+            <td class="td-name">
+              <div class="product-name-cell">
+                <span class="product-name">{{ product.name }}</span>
+                <span class="product-description">{{ product.description }}</span>
+              </div>
+            </td>
+
+            <!-- Categoría -->
+            <td class="td-category">
+              <span class="category-badge">{{ product.categoryName }}</span>
+            </td>
+
+            <!-- Stock -->
+            <td class="td-stock">
+              <span 
+                class="stock-value" 
+                [class.stock-low]="product.stock !== undefined && product.stock < 10"
+                [class.stock-ok]="product.stock === undefined || product.stock >= 10">
+                {{ product.stock !== undefined ? product.stock + ' unidades' : 'N/A' }}
+              </span>
+            </td>
+
+            <!-- Precio Base -->
+            <td class="td-price">
+              <span class="price-value">{{ formatPrice(product.unitValue || product.unitPrice || 0) }}</span>
+            </td>
+
+            <!-- IVA -->
+            <td class="td-price">
+              <span class="price-value iva">
+                {{ formatPrice(product.ivaAmount || product.taxAmount || 0) }}
+                <small>({{ product.iva || product.taxRate }}%)</small>
+              </span>
+            </td>
+
+            <!-- Precio Total -->
+            <td class="td-price">
+              <span class="price-value total">{{ formatPrice(product.totalPrice) }}</span>
+            </td>
+
+            <!-- Estado -->
+            <td class="td-status">
+              <span class="status-badge" [class]="getStatusClass(product)">
+                {{ getProductStatus(product) }}
+              </span>
+            </td>
+
+            <!-- Fecha -->
+            <td class="td-date">
+              <span class="date-value">{{ formatDate(product.createdAt) }}</span>
+            </td>
+
+            <!-- Acciones -->
+            <td class="td-actions">
+              <div class="action-buttons">
+                <p-button 
+                  icon="pi pi-eye"
+                  [rounded]="true"
+                  severity="info"
+                  [text]="true"
+                  (onClick)="viewProduct(product)"
+                  pTooltip="Ver detalles"
+                  tooltipPosition="top"
+                  styleClass="btn-action btn-view" />
+
+                <p-button 
+                  icon="pi pi-pencil"
+                  [rounded]="true"
+                  severity="help"
+                  [text]="true"
+                  (onClick)="editProduct(product)"
+                  pTooltip="Editar producto"
+                  tooltipPosition="top"
+                  styleClass="btn-action btn-edit" />
+
+                <p-button 
+                  [icon]="product.active ? 'pi pi-power-off' : 'pi pi-check'"
+                  [rounded]="true"
+                  [severity]="product.active ? 'warn' : 'info'"
+                  [text]="true"
+                  (onClick)="toggleProductStatus(product)"
+                  [pTooltip]="product.active ? 'Desactivar producto' : 'Activar producto'"
+                  tooltipPosition="top"
+                  styleClass="btn-action btn-toggle" />
+
+                <p-button 
+                  icon="pi pi-trash"
+                  [rounded]="true"
+                  severity="danger"
+                  [text]="true"
+                  (onClick)="deleteProduct(product)"
+                  pTooltip="Eliminar producto"
+                  tooltipPosition="top"
+                  styleClass="btn-action btn-delete" />
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+        
+        <ng-template pTemplate="footer">
+          <tr>
+            <td colspan="11" class="table-footer">
+              <div class="footer-info">
+                <p>Mostrando <strong>{{ displayedProducts().length }}</strong> productos</p>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  }
+</div>
+
+<!-- Modal para Crear Producto -->
+<p-dialog 
+  [visible]="showCreateModal()"
+  (visibleChange)="showCreateModal.set($event)"
+  [modal]="true"
+  [closable]="true"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="create-product-modal"
+  header="Crear Nuevo Producto">
+  
+  <form [formGroup]="productForm" (ngSubmit)="onSubmit()" class="product-form">
+    <!-- Nombre -->
+    <div class="form-field">
+      <label for="name" class="form-label">
+        Nombre del Producto <span class="required">*</span>
+      </label>
+      <input 
+        pInputText 
+        id="name" 
+        formControlName="name"
+        placeholder="Ej: Laptop HP Pavilion 16"
+        [class.invalid]="productForm.get('name')?.invalid && productForm.get('name')?.touched" />
+      @if (productForm.get('name')?.invalid && productForm.get('name')?.touched) {
+        <small class="error-message">
+          @if (productForm.get('name')?.errors?.['required']) {
+            El nombre es requerido
+          } @else if (productForm.get('name')?.errors?.['minlength']) {
+            El nombre debe tener al menos 3 caracteres
+          }
+        </small>
+      }
+    </div>
+
+    <!-- Descripción -->
+    <div class="form-field">
+      <label for="description" class="form-label">
+        Descripción <span class="required">*</span>
+      </label>
+      <textarea 
+        pInputTextarea 
+        id="description" 
+        formControlName="description"
+        placeholder="Describe las características principales del producto"
+        rows="4"
+        [class.invalid]="productForm.get('description')?.invalid && productForm.get('description')?.touched"></textarea>
+      @if (productForm.get('description')?.invalid && productForm.get('description')?.touched) {
+        <small class="error-message">
+          @if (productForm.get('description')?.errors?.['required']) {
+            La descripción es requerida
+          } @else if (productForm.get('description')?.errors?.['minlength']) {
+            La descripción debe tener al menos 10 caracteres
+          }
+        </small>
+      }
+    </div>
+
+    <!-- Precio Base y IVA -->
+    <div class="form-row">
+      <div class="form-field">
+        <label for="unitValue" class="form-label">
+          Precio Base (COP) <span class="required">*</span>
+        </label>
+        <p-inputNumber 
+          inputId="unitValue"
+          formControlName="unitValue"
+          mode="currency"
+          currency="COP"
+          locale="es-CO"
+          [minFractionDigits]="0"
+          [maxFractionDigits]="2"
+          placeholder="0"
+          [class.invalid]="productForm.get('unitValue')?.invalid && productForm.get('unitValue')?.touched">
+        </p-inputNumber>
+        @if (productForm.get('unitValue')?.invalid && productForm.get('unitValue')?.touched) {
+          <small class="error-message">
+            El precio debe ser mayor a 0
+          </small>
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="iva" class="form-label">
+          IVA (%) <span class="required">*</span>
+        </label>
+        <p-inputNumber 
+          inputId="iva"
+          formControlName="iva"
+          [min]="0"
+          [max]="100"
+          suffix="%"
+          placeholder="19">
+        </p-inputNumber>
+        @if (productForm.get('iva')?.invalid && productForm.get('iva')?.touched) {
+          <small class="error-message">
+            El IVA debe estar entre 0 y 100
+          </small>
+        }
+      </div>
+    </div>
+
+    <!-- Inventario y Categoría -->
+    <div class="form-row">
+      <div class="form-field">
+        <label for="inventory" class="form-label">
+          Inventario (unidades) <span class="required">*</span>
+        </label>
+        <p-inputNumber 
+          inputId="inventory"
+          formControlName="inventory"
+          [min]="0"
+          placeholder="0">
+        </p-inputNumber>
+        @if (productForm.get('inventory')?.invalid && productForm.get('inventory')?.touched) {
+          <small class="error-message">
+            El inventario debe ser mayor o igual a 0
+          </small>
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="categoryName" class="form-label">
+          Categoría <span class="required">*</span>
+        </label>
+        <p-dropdown 
+          inputId="categoryName"
+          formControlName="categoryName"
+          [options]="categories()"
+          optionLabel="name"
+          optionValue="name"
+          placeholder="Selecciona una categoría"
+          [showClear]="true"
+          [loading]="loadingCategories()"
+          [class.invalid]="productForm.get('categoryName')?.invalid && productForm.get('categoryName')?.touched">
+        </p-dropdown>
+        @if (productForm.get('categoryName')?.invalid && productForm.get('categoryName')?.touched) {
+          <small class="error-message">
+            La categoría es requerida
+          </small>
+        }
+      </div>
+    </div>
+
+    <!-- URL de Imagen -->
+    <div class="form-field">
+      <label for="imageUrl" class="form-label">
+        URL de Imagen (opcional)
+      </label>
+      <input 
+        pInputText 
+        id="imageUrl" 
+        formControlName="imageUrl"
+        placeholder="https://ejemplo.com/imagen.jpg" />
+      <small class="field-hint">
+        Proporciona una URL válida de la imagen del producto
+      </small>
+    </div>
+
+    <!-- Estado del Producto (hidden) -->
+    <input type="hidden" formControlName="estadoProductoId" />
+
+    <!-- Botones de Acción -->
+    <div class="form-actions">
+      <p-button 
+        label="Cancelar" 
+        severity="secondary"
+        [outlined]="true"
+        (onClick)="closeCreateModal()"
+        [disabled]="submitting()">
+      </p-button>
+        <p-button 
+          type="submit"
+          label="Crear Producto" 
+          severity="danger"
+          [loading]="submitting()"
+          [disabled]="productForm.invalid">
+        </p-button>
+    </div>
+  </form>
+</p-dialog>

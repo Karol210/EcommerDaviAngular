@@ -1,0 +1,264 @@
+<p-confirmDialog />
+
+<div class="admin-users-container">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-content">
+      <div class="header-left">
+        <h1>Gestión de Usuarios</h1>
+        <p class="subtitle">Administra los usuarios del sistema</p>
+      </div>
+      <div class="header-actions">
+        <p-button 
+          label="Actualizar"
+          icon="pi pi-refresh"
+          [outlined]="true"
+          severity="secondary"
+          (onClick)="refreshUsers()"
+          [disabled]="loading()"
+          styleClass="btn-refresh" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p>Cargando usuarios...</p>
+    </div>
+  }
+
+  <!-- Empty State -->
+  @if (!loading() && users().length === 0) {
+    <div class="empty-state">
+      <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M32 56C45.2548 56 56 45.2548 56 32C56 18.7452 45.2548 8 32 8C18.7452 8 8 18.7452 8 32C8 45.2548 18.7452 56 32 56Z" stroke="currentColor" stroke-width="3"/>
+        <path d="M32 20V32M32 44H32.02" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <h3>No hay usuarios registrados</h3>
+      <p>Aún no hay usuarios en el sistema</p>
+    </div>
+  }
+
+  <!-- Users Table -->
+  @if (!loading() && users().length > 0) {
+    <div class="table-container">
+      <p-table 
+        [value]="users()" 
+        [tableStyle]="{ 'min-width': '50rem' }"
+        styleClass="users-table"
+        [scrollable]="true"
+        scrollHeight="flex">
+        
+        <ng-template pTemplate="header">
+          <tr>
+            <th class="th-id">ID</th>
+            <th class="th-name">Nombre Completo</th>
+            <th class="th-document">Documento</th>
+            <th class="th-email">Email</th>
+            <th class="th-roles">Roles</th>
+            <th class="th-status">Estado</th>
+            <th class="th-actions">Acciones</th>
+          </tr>
+        </ng-template>
+        
+        <ng-template pTemplate="body" let-user>
+          <tr>
+            <!-- ID -->
+            <td class="td-id">
+              <span class="user-id">#{{ user.usuarioId }}</span>
+            </td>
+
+            <!-- Nombre Completo -->
+            <td class="td-name">
+              <div class="user-name-cell">
+                <span class="user-name">{{ user.nombre }} {{ user.apellido }}</span>
+              </div>
+            </td>
+
+            <!-- Documento -->
+            <td class="td-document">
+              <div class="document-cell">
+                <span class="document-type">{{ user.documentType }}</span>
+                <span class="document-number">{{ user.documentNumber }}</span>
+              </div>
+            </td>
+
+            <!-- Email -->
+            <td class="td-email">
+              <span class="email-value">{{ user.email }}</span>
+            </td>
+
+            <!-- Roles -->
+            <td class="td-roles">
+              <div class="roles-container">
+                @for (role of user.roles; track role) {
+                  <span class="role-badge">{{ role }}</span>
+                }
+              </div>
+            </td>
+
+            <!-- Estado -->
+            <td class="td-status">
+              <span class="status-badge" [class]="getStatusClass(user)">
+                {{ user.status }}
+              </span>
+            </td>
+
+            <!-- Acciones -->
+            <td class="td-actions">
+              <div class="action-buttons">
+                <p-button 
+                  icon="pi pi-pencil"
+                  [rounded]="true"
+                  severity="help"
+                  [text]="true"
+                  (onClick)="editUser(user)"
+                  pTooltip="Editar usuario"
+                  tooltipPosition="top"
+                  styleClass="btn-action btn-edit" />
+
+                <p-button 
+                  [icon]="user.status === 'Activo' ? 'pi pi-power-off' : 'pi pi-check'"
+                  [rounded]="true"
+                  [severity]="user.status === 'Activo' ? 'warn' : 'info'"
+                  [text]="true"
+                  (onClick)="toggleUserStatus(user)"
+                  [pTooltip]="user.status === 'Activo' ? 'Desactivar usuario' : 'Activar usuario'"
+                  tooltipPosition="top"
+                  styleClass="btn-action btn-toggle" />
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+        
+        <ng-template pTemplate="footer">
+          <tr>
+            <td colspan="7" class="table-footer">
+              <div class="footer-info">
+                <p>Mostrando <strong>{{ users().length }}</strong> usuarios</p>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  }
+</div>
+
+<!-- Modal de Edición de Usuario -->
+<p-dialog 
+  [visible]="showEditModal()"
+  (visibleChange)="showEditModal.set($event)"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{width: '500px'}"
+  [closable]="true"
+  styleClass="edit-user-modal">
+  
+  <ng-template pTemplate="header">
+    <div class="modal-header">
+      <i class="pi pi-user-edit"></i>
+      <span class="modal-title">Editar Usuario</span>
+    </div>
+  </ng-template>
+
+  <form [formGroup]="editForm" (ngSubmit)="onEditSubmit()">
+    <div class="form-content">
+      <!-- Nombre -->
+      <div class="form-field">
+        <label for="nombre">Nombre *</label>
+        <input 
+          id="nombre"
+          type="text"
+          pInputText
+          formControlName="nombre"
+          placeholder="Ingrese el nombre" />
+        @if (editForm.get('nombre')?.invalid && editForm.get('nombre')?.touched) {
+          <small class="error-message">El nombre es requerido (mínimo 2 caracteres)</small>
+        }
+      </div>
+
+      <!-- Apellido -->
+      <div class="form-field">
+        <label for="apellido">Apellido *</label>
+        <input 
+          id="apellido"
+          type="text"
+          pInputText
+          formControlName="apellido"
+          placeholder="Ingrese el apellido" />
+        @if (editForm.get('apellido')?.invalid && editForm.get('apellido')?.touched) {
+          <small class="error-message">El apellido es requerido (mínimo 2 caracteres)</small>
+        }
+      </div>
+
+      <!-- Email -->
+      <div class="form-field">
+        <label for="email">Email *</label>
+        <input 
+          id="email"
+          type="email"
+          pInputText
+          formControlName="email"
+          placeholder="correo@ejemplo.com" />
+        @if (editForm.get('email')?.invalid && editForm.get('email')?.touched) {
+          <small class="error-message">Ingrese un email válido</small>
+        }
+      </div>
+
+      <!-- Tipo de Documento -->
+      <div class="form-field">
+        <label for="tipoDocumento">Tipo de Documento *</label>
+        <p-dropdown
+          id="tipoDocumento"
+          formControlName="tipoDocumento"
+          [options]="documentTypes()"
+          optionLabel="nombre"
+          optionValue="codigo"
+          placeholder="Seleccione tipo de documento"
+          [loading]="loadingDocumentTypes()"
+          appendTo="body" />
+        @if (editForm.get('tipoDocumento')?.invalid && editForm.get('tipoDocumento')?.touched) {
+          <small class="error-message">Seleccione un tipo de documento</small>
+        }
+      </div>
+
+      <!-- Número de Documento -->
+      <div class="form-field">
+        <label for="numeroDocumento">Número de Documento *</label>
+        <input 
+          id="numeroDocumento"
+          type="text"
+          pInputText
+          formControlName="numeroDocumento"
+          placeholder="12345678" />
+        @if (editForm.get('numeroDocumento')?.invalid && editForm.get('numeroDocumento')?.touched) {
+          <small class="error-message">Ingrese un número de documento válido (solo números)</small>
+        }
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <p-button 
+        label="Cancelar"
+        icon="pi pi-times"
+        [outlined]="true"
+        severity="secondary"
+        (onClick)="closeEditModal()"
+        [disabled]="submitting()"
+        type="button" />
+      
+      <p-button 
+        label="Guardar Cambios"
+        icon="pi pi-check"
+        severity="success"
+        [loading]="submitting()"
+        [disabled]="editForm.invalid"
+        type="submit" />
+    </div>
+  </form>
+</p-dialog>
+

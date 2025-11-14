@@ -1,0 +1,183 @@
+---
+description: NO encadenar servicios, hacerlo en componentes. Single Responsibility Principle
+globs:
+  - "**/*.service.ts"
+  - "**/*.component.ts"
+alwaysApply: true
+---
+
+# Reglas de Buenas Prácticas - Servicios y Encadenamiento
+
+## Regla General
+Los servicios NO deben orquestar otros servicios. El encadenamiento de operaciones debe hacerse en los COMPONENTES.
+
+## 1. Inyección de Dependencias
+
+### ❌ NUNCA hacer esto
+
+**NO usar import() dinámico para inyección:**
+```typescript
+// ❌ MAL - No hacer esto
+userLogin() {
+  return this.http.post(...).pipe(
+    tap(() => {
+      import('./cart.service').then(({CartService}) => { // ❌ MAL
+        const cart = this.injector.get(CartService); // ❌ MAL
+        cart.refreshCart(); // ❌ MAL
+      });
+    })
+  );
+}
+```
+
+### ✅ SIEMPRE hacer esto
+
+**Inyección correcta con inject():**
+```typescript
+// ✅ CORRECTO
+export class MiComponente {
+  private readonly authService = inject(AuthService);
+  private readonly cartService = inject(CartService);
+}
+```
+
+## 2. Encadenamiento de Servicios
+
+### ❌ NO encadenar en servicios
+
+```typescript
+// ❌ MAL - Servicio llama a otro servicio
+@Injectable({ providedIn: 'root' })
+export class AuthService {
+  private cartService = inject(CartService);
+  
+  userLogin(credentials: LoginCredentials) {
+    return this.http.post('/api/auth/login', credentials).pipe(
+      tap(response => {
+        this.storage.setItem('token', response.token);
+        this.cartService.refreshCart(); // ❌ Encadenamiento en servicio
+      })
+    );
+  }
+}
+```
+
+### ✅ Encadenar en COMPONENTES
+
+```typescript
+// ✅ CORRECTO - Encadenamiento en componente
+@Component({...})
+export class LoginComponent {
+  private readonly authService = inject(AuthService);
+  private readonly cartService = inject(CartService);
+  
+  onSubmit() {
+    // Encadenar operaciones en el componente
+    this.authService.userLogin(this.form.value).pipe(
+      tap(() => {
+        // Aquí orquestamos múltiples servicios
+        this.cartService.refreshCart();
+      })
+    ).subscribe({
+      next: () => this.handleSuccess(),
+      error: (error) => this.handleError(error)
+    });
+  }
+}
+```
+
+## 3. Single Responsibility Principle
+
+**Cada servicio debe hacer UNA sola cosa:**
+
+```typescript
+// ✅ CORRECTO - Servicio simple y enfocado
+@Injectable({ providedIn: 'root' })
+export class AuthService {
+  private readonly http = inject(HttpClient);
+  private readonly storage = inject(StorageService);
+  
+  userLogin(credentials: LoginCredentials): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>('/api/auth/login', credentials).pipe(
+      tap(response => {
+        // Solo maneja su propia responsabilidad: autenticación
+        this.storage.setItem('token', response.token);
+        this.userState.set(response.username);
+      })
+    );
+  }
+}
+```
+
+## 4. Operadores RxJS para Encadenamiento
+
+**Usar en componentes para orquestar servicios:**
+
+```typescript
+// Ejemplo completo de encadenamiento en componente
+addToCart(product: Product): void {
+  // Verificar autenticación
+  if (!this.authService.isUserAuthenticated()) {
+    this.headerComponent().navigateToLogin();
+    return;
+  }
+  
+  // Encadenar: agregar → delay → obtener resumen
+  this.cartService.addToCart(product, 1).pipe(
+    delay(1000),                              // Esperar
+    switchMap(() => this.cartService.getCartSummary())  // Cambiar a otro observable
+  ).subscribe({
+    next: (summaryResponse) => {
+      this.cartService.updateCartState(summaryResponse.body);
+      this.showSuccessMessage();
+    },
+    error: (error) => this.handleError(error)
+  });
+}
+```
+
+## 5. Operadores RxJS Comunes
+
+**Para encadenar en componentes:**
+
+- `tap()`: Efectos secundarios (logging, actualizar estado local)
+- `switchMap()`: Cambiar a otro observable
+- `mergeMap()`: Ejecutar observables en paralelo
+- `concatMap()`: Ejecutar observables en secuencia
+- `delay()`: Agregar retraso entre operaciones
+- `debounceTime()`: Optimizar múltiples llamados
+- `catchError()`: Manejo de errores
+
+```typescript
+// Ejemplo con múltiples operadores
+this.searchService.search(query).pipe(
+  debounceTime(300),                    // Esperar 300ms
+  tap(() => this.loading.set(true)),    // Mostrar loading
+  switchMap(term => this.api.search(term)), // Buscar en API
+  tap(() => this.loading.set(false)),   // Ocultar loading
+  catchError(error => {
+    this.handleError(error);
+    return of([]);                       // Retornar array vacío en error
+  })
+).subscribe(results => {
+  this.results.set(results);
+});
+```
+
+## Reglas Clave
+
+1. ✅ Inyectar con `inject()` o en el constructor
+2. ✅ Encadenar en componentes, NO en servicios
+3. ✅ Single Responsibility en servicios
+4. ❌ NO usar import() dinámico para DI
+5. ❌ NO hacer que servicios llamen a otros servicios directamente
+6. ✅ Usar operadores RxJS para orquestación
+7. ✅ Componentes son orquestadores, servicios son ejecutores
+
+---
+
+**Ver también:**
+- `angular-componentes.mdc` - Estructura de componentes
+- `servicios-http-api.mdc` - Servicios HTTP
+
+**Versión:** Angular 19.x | RxJS 7.x

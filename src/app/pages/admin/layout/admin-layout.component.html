@@ -1,0 +1,28 @@
+<div class="admin-layout">
+  <aside class="admin-layout__sidebar">
+    <div class="admin-layout__sidebar-header">
+      <h1 class="admin-layout__logo">Davivienda</h1>
+      <span class="admin-layout__logo-subtitle">Admin Panel</span>
+    </div>
+
+    <div class="admin-layout__user">
+      <p-avatar
+        icon="pi pi-user"
+        size="large"
+        [style]="{ backgroundColor: 'var(--red-main)', color: 'var(--white)' }" />
+      <div class="admin-layout__user-info">
+        <span class="admin-layout__user-name">{{ adminUser()?.username }}</span>
+        <span class="admin-layout__user-role">Administrador</span>
+      </div>
+    </div>
+
+    <nav class="admin-layout__nav">
+      <p-menu [model]="menuItems" styleClass="admin-menu" />
+    </nav>
+  </aside>
+
+  <main class="admin-layout__main">
+    <router-outlet />
+  </main>
+</div>
+

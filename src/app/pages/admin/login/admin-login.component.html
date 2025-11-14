@@ -1,0 +1,78 @@
+<p-toast />
+
+<div class="admin-login">
+  <div class="admin-login__container">
+    <div class="admin-login__header">
+      <h1 class="admin-login__logo">Davivienda</h1>
+      <p class="admin-login__subtitle">Panel de Administración</p>
+    </div>
+
+    <p-card class="admin-login__card">
+      <div class="admin-login__content">
+        <div class="admin-login__card-header">
+          <i class="pi pi-shield" style="font-size: 3rem; color: var(--red-main)"></i>
+          <h2>Iniciar Sesión</h2>
+        </div>
+
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="admin-login__form">
+        <div class="form-field">
+          <label for="username" class="form-field__label">Usuario</label>
+          <input
+            pInputText
+            id="username"
+            formControlName="username"
+            placeholder="Ingrese su usuario"
+            [class.ng-invalid]="loginForm.get('username')?.invalid && loginForm.get('username')?.touched"
+            class="form-field__input" />
+          
+          @if (loginForm.get('username')?.invalid && loginForm.get('username')?.touched) {
+            @if (loginForm.get('username')?.hasError('required')) {
+              <small class="form-field__error">
+                Usuario es requerido
+              </small>
+            }
+            @if (loginForm.get('username')?.hasError('minlength')) {
+              <small class="form-field__error">
+                Mínimo 3 caracteres
+              </small>
+            }
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="password" class="form-field__label">Contraseña</label>
+          <p-password
+            id="password"
+            formControlName="password"
+            placeholder="Ingrese su contraseña"
+            [toggleMask]="true"
+            [feedback]="false"
+            [class.ng-invalid]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+            styleClass="form-field__password" />
+          
+          @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+            @if (loginForm.get('password')?.hasError('required')) {
+              <small class="form-field__error">
+                Contraseña es requerida
+              </small>
+            }
+            @if (loginForm.get('password')?.hasError('minlength')) {
+              <small class="form-field__error">
+                Mínimo 6 caracteres
+              </small>
+            }
+          }
+        </div>
+
+        <p-button
+          type="submit"
+          label="Iniciar Sesión"
+          icon="pi pi-sign-in"
+          [loading]="loading()"
+          styleClass="admin-login__button" />
+        </form>
+      </div>
+    </p-card>
+  </div>
+</div>
+

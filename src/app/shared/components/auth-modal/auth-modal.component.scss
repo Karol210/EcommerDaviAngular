@@ -1,0 +1,112 @@
+/**
+ * Auth Modal Component Styles
+ * Estilos para el modal de autenticación (login y registro)
+ * Usando el sistema de diseño de grid
+ */
+
+@use '../../../../styles/grid-system' as grid;
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1rem 0;
+}
+
+// Usando el sistema de grid con mixin
+.form-row {
+  @include grid.grid-cols(2, grid.$grid-gap-medium);
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--black-dark);
+}
+
+.form-input {
+  width: 100%;
+}
+
+.form-input-password {
+  width: 100%;
+}
+
+.form-error {
+  color: #ef4444;
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.form-submit-btn {
+  width: 100%;
+}
+
+.form-footer {
+  text-align: center;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.form-link {
+  color: var(--red-main);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+
+  &:hover {
+    color: var(--red-dark);
+    text-decoration: underline;
+  }
+}
+
+/* Estilos personalizados para el dialog */
+:host ::ng-deep {
+  .auth-modal {
+    .p-dialog-header {
+      background-color: var(--red-main);
+      color: var(--white);
+      
+      .p-dialog-title {
+        font-weight: 600;
+      }
+      
+      .p-dialog-header-icon {
+        color: var(--white);
+        
+        &:hover {
+          background-color: rgba(255, 255, 255, 0.1);
+        }
+      }
+    }
+
+    .p-dialog-content {
+      padding: 1.5rem;
+    }
+  }
+
+  // Ajustes para el componente password de PrimeNG
+  .form-input-password {
+    .p-password-input {
+      width: 100%;
+    }
+  }
+
+  // Estilos para campos inválidos
+  .p-invalid {
+    border-color: #ef4444;
+  }
+}
+

@@ -1,0 +1,157 @@
+<p-dialog 
+  [(visible)]="visible"
+  [modal]="true"
+  [closable]="true"
+  [closeOnEscape]="false"
+  [draggable]="false"
+  styleClass="checkout-dialog"
+  header="Finalizar Compra">
+  
+  <div class="checkout-container">
+    <!-- Parte Izquierda: Resumen del Carrito -->
+    <div class="checkout-left">
+      <h3 class="section-title">Resumen del Pedido</h3>
+      
+      <div class="cart-items-summary">
+        @for (item of cartItems(); track item.id) {
+          <div class="cart-item-summary">
+            <div class="item-image">
+              @if (item.product.imageUrl) {
+                <img [src]="item.product.imageUrl" [alt]="item.product.name" />
+              } @else {
+                <div class="item-image-placeholder">
+                  <i class="pi pi-image"></i>
+                </div>
+              }
+            </div>
+            <div class="item-details">
+              <h4 class="item-name">{{ item.product.name }}</h4>
+              <p class="item-quantity">Cantidad: {{ item.quantity }}</p>
+              <p class="item-price">{{ formatPrice(item.product.totalPrice * item.quantity) }}</p>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="cart-total">
+        <span class="total-label">Total a Pagar:</span>
+        <span class="total-amount">{{ formatPrice(totalPrice()) }}</span>
+      </div>
+    </div>
+
+    <!-- Parte Derecha: Formulario de Pago -->
+    <div class="checkout-right">
+      <h3 class="section-title">Datos de Pago</h3>
+      
+      <form [formGroup]="paymentForm" (ngSubmit)="onPaymentSubmit()" class="payment-form">
+        
+        <!-- Tipo de Pago -->
+        <div class="form-field">
+          <label for="paymentType">Tipo de Pago *</label>
+          <p-dropdown
+            id="paymentType"
+            formControlName="paymentType"
+            [options]="paymentTypes"
+            optionLabel="label"
+            optionValue="id"
+            placeholder="Seleccione tipo de pago"
+            styleClass="w-full" />
+        </div>
+
+        <!-- Banco (Bloqueado) -->
+        <div class="form-field">
+          <label for="bankName">Banco *</label>
+          <input 
+            pInputText
+            id="bankName"
+            formControlName="bankName"
+            class="w-full"
+            readonly />
+        </div>
+
+        <!-- Nombre del Titular -->
+        <div class="form-field">
+          <label for="cardHolderName">Nombre del Titular *</label>
+          <input 
+            pInputText
+            id="cardHolderName"
+            formControlName="cardHolderName"
+            placeholder="Ej: Juan Pérez"
+            class="w-full" />
+          @if (paymentForm.get('cardHolderName')?.invalid && paymentForm.get('cardHolderName')?.touched) {
+            <small class="error-message">Ingrese un nombre válido (mínimo 3 caracteres)</small>
+          }
+        </div>
+
+        <!-- Número de Tarjeta -->
+        <div class="form-field">
+          <label for="cardNumber">Número de Tarjeta *</label>
+          <p-inputMask
+            id="cardNumber"
+            formControlName="cardNumber"
+            mask="9999 9999 9999 9999"
+            placeholder="1234 5678 9012 3456"
+            styleClass="w-full" />
+          @if (paymentForm.get('cardNumber')?.invalid && paymentForm.get('cardNumber')?.touched) {
+            <small class="error-message">Ingrese un número de tarjeta válido (16 dígitos)</small>
+          }
+        </div>
+
+        <!-- Fecha de Vencimiento y CVV -->
+        <div class="form-row">
+          <div class="form-field">
+            <label for="expirationDate">Fecha de Vencimiento *</label>
+            <p-inputMask
+              id="expirationDate"
+              formControlName="expirationDate"
+              mask="99/99"
+              placeholder="MM/YY"
+              styleClass="w-full" />
+            @if (paymentForm.get('expirationDate')?.invalid && paymentForm.get('expirationDate')?.touched) {
+              <small class="error-message">Formato: MM/YY</small>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="cvv">CVV *</label>
+            <p-inputMask
+              id="cvv"
+              formControlName="cvv"
+              mask="999"
+              placeholder="123"
+              styleClass="w-full" />
+            @if (paymentForm.get('cvv')?.invalid && paymentForm.get('cvv')?.touched) {
+              <small class="error-message">3 dígitos</small>
+            }
+          </div>
+        </div>
+
+        <!-- Cuotas (solo para crédito) -->
+        @if (selectedPaymentType() === 'credito') {
+          <div class="form-field">
+            <label for="installments">Número de Cuotas *</label>
+            <p-dropdown
+              id="installments"
+              formControlName="installments"
+              [options]="installmentOptions"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Seleccione cuotas"
+              styleClass="w-full" />
+          </div>
+        }
+
+        <!-- Botón Pagar -->
+        <div class="form-actions">
+          <p-button
+            type="submit"
+            label="Pagar"
+            icon="pi pi-credit-card"
+            [loading]="processing()"
+            [disabled]="paymentForm.invalid"
+            styleClass="w-full payment-button" />
+        </div>
+      </form>
+    </div>
+  </div>
+</p-dialog>

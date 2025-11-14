@@ -1,0 +1,48 @@
+# Cursor Rules - Angular Project
+
+Aplicar siempre las siguientes reglas del directorio .cursor/rules/:
+
+## Reglas Principales
+- angular-componentes.mdc: Sintaxis moderna de Angular 19 (control flow, signals, standalone)
+- servicios-encadenamiento.mdc: NO encadenar servicios, hacerlo en componentes
+- servicios-http-api.mdc: Estructura de servicios HTTP con tipado completo
+- limpieza-codigo.mdc: Uso de readonly, tipos específicos, imports limpios
+- documentacion-codigo.mdc: JSDoc para código complejo y APIs públicas
+
+## Reglas de Estilo
+- espaciado-componentes.mdc: Principio del Cuadrado (padding lateral solo en padre)
+- variables-css-colores.mdc: NUNCA hardcodear colores, usar variables CSS
+- primeng-integracion.mdc: PrimeNG v19 con Design Tokens
+
+## Reglas de Organización
+- enumeradores-constantes.mdc: Usar enums/constantes, NO valores hardcodeados
+- meta-reglas-escritura.mdc: Cómo escribir nuevas reglas
+
+## Reglas Críticas
+
+### ❌ NUNCA hacer:
+1. Encadenar servicios dentro de otros servicios
+2. Usar import() dinámico para inyección de dependencias
+3. Hardcodear colores, rutas, strings o valores mágicos
+4. Usar `any` sin justificación
+5. Usar `::ng-deep` en componentes individuales
+6. Usar sintaxis antigua: `*ngIf`, `*ngFor`, `*ngSwitch`
+
+### ✅ SIEMPRE hacer:
+1. Encadenar operaciones en COMPONENTES, no en servicios
+2. Inyectar dependencias con `inject()` y marcar como `readonly`
+3. Usar variables CSS, enums y constantes
+4. Usar tipos específicos (interfaces, types)
+5. Usar nueva sintaxis de control flow: `@if`, `@for`, `@switch`
+6. Single Responsibility Principle en servicios
+
+## Stack Tecnológico
+- Angular 19.x (standalone components, signals)
+- PrimeNG 19.x (Design Tokens)
+- TypeScript (strict mode)
+- RxJS 7.x
+- SCSS con variables CSS
+
+## Aplicación de Reglas
+Todas las reglas en .cursor/rules/ deben aplicarse automáticamente según el contexto del archivo que se esté editando.
+

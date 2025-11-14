@@ -1,0 +1,264 @@
+---
+description: JSDoc para código complejo y APIs públicas. No documentar código obvio
+globs:
+  - "**/*.ts"
+  - "**/*.scss"
+alwaysApply: true
+---
+
+# Documentación de Código
+
+## Regla General
+Documentar código complejo, APIs públicas y lógica no obvia. No documentar código auto-explicativo.
+
+## TypeScript - Documentación
+
+### Clases y Componentes
+
+```typescript
+/**
+ * Servicio para gestionar la autenticación de administradores.
+ * Maneja login, logout y persistencia de sesión.
+ */
+@Injectable({ providedIn: 'root' })
+export class AuthService {
+  private adminUserState = signal<User | null>(null);
+  
+  /**
+   * Signal reactivo con el usuario administrador actual.
+   * Null si no hay sesión activa.
+   */
+  adminUser = this.adminUserState.asReadonly();
+}
+```
+
+### Métodos Públicos
+
+**Documentar cuando:**
+- La lógica no es obvia
+- Tiene parámetros con significado no evidente
+- Devuelve valores que requieren explicación
+- Tiene efectos secundarios importantes
+
+```typescript
+/**
+ * Inicia sesión de administrador y persiste la sesión.
+ * 
+ * @param credentials - Usuario y contraseña del administrador
+ * @returns Promise que resuelve true si login exitoso, false si credenciales inválidas
+ * @throws Error si hay problema de conexión
+ */
+async adminLogin(credentials: LoginCredentials): Promise<boolean> {
+  // implementación
+}
+
+/**
+ * Agrega un producto al carrito o incrementa cantidad si ya existe.
+ * Persiste cambios en localStorage automáticamente.
+ * 
+ * @param product - Producto a agregar
+ * @param quantity - Cantidad a agregar (default: 1)
+ */
+addToCart(product: Product, quantity: number = 1): void {
+  // implementación
+}
+```
+
+### Propiedades y Signals
+
+**Documentar solo si no es obvio por el nombre:**
+
+```typescript
+// ❌ NO documentar - obvio por el nombre
+products = signal<Product[]>([]);
+loading = signal(false);
+
+// ✅ SÍ documentar - comportamiento especial
+/**
+ * Total de items en el carrito.
+ * Se recalcula automáticamente cuando cambia cartItems.
+ */
+totalItems = computed(() => 
+  this.cartItems().reduce((sum, item) => sum + item.quantity, 0)
+);
+```
+
+### Interfaces y Types
+
+```typescript
+/**
+ * Representa un producto en el catálogo.
+ */
+export interface Product {
+  id: string;
+  name: string;
+  /** URL de la imagen del producto. Debe ser absoluta. */
+  imageUrl: string;
+  /** Precio en pesos colombianos (COP) */
+  price: number;
+  /** Cantidad disponible en inventario */
+  stock: number;
+}
+
+/**
+ * Credenciales para autenticación de administrador.
+ */
+export interface LoginCredentials {
+  username: string;
+  /** Mínimo 6 caracteres */
+  password: string;
+}
+```
+
+### Enums
+
+```typescript
+/**
+ * Rutas principales de la aplicación.
+ * Usar siempre estos valores en lugar de strings hardcodeados.
+ */
+export enum AppRoutes {
+  HOME = '',
+  ADMIN = 'admin',
+  ADMIN_LOGIN = 'admin/login'
+}
+
+/**
+ * Claves para almacenamiento en sessionStorage/localStorage.
+ */
+export enum StorageKeys {
+  ADMIN_TOKEN = 'admin_token',
+  CART_ITEMS = 'cart_items'
+}
+```
+
+## SCSS - Documentación
+
+### Estructura de Componente
+
+```scss
+/**
+ * Landing Component Styles
+ * 
+ * Página principal del marketplace con hero section y grid de productos.
+ * Responsive: mobile-first con breakpoint en 768px.
+ */
+
+// Hero Section - Banner principal con gradiente
+.hero {
+  background: linear-gradient(135deg, var(--red-main) 0%, var(--red-dark) 100%);
+  padding: 4rem 2rem;
+  
+  &__title {
+    font-size: 2.5rem;
+    font-weight: 700;
+  }
+}
+
+// Products Grid - Layout adaptativo
+.products {
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+  }
+}
+```
+
+### Hacks o Soluciones No Obvias
+
+```scss
+.dropdown {
+  position: relative;
+  
+  /**
+   * Fix para Safari: z-index necesario para que el dropdown
+   * se muestre sobre elementos con transform en iOS.
+   */
+  &__menu {
+    position: absolute;
+    z-index: 1000;
+    transform: translateZ(0); // Hardware acceleration
+  }
+}
+
+.truncate {
+  /**
+   * Trunca texto en una línea con ellipsis.
+   * Requiere width definido en el elemento.
+   */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+```
+
+## Qué NO Documentar
+
+### TypeScript
+
+```typescript
+// ❌ NO documentar - obvio
+class UserService {
+  /** Obtiene el usuario */
+  getUser() { }
+  
+  /** Establece el usuario */
+  setUser(user: User) { }
+  
+  /** Constructor del servicio */
+  constructor() { }
+}
+
+// ✅ Mejor - sin comentarios innecesarios
+class UserService {
+  getUser() { }
+  setUser(user: User) { }
+  constructor() { }
+}
+```
+
+### SCSS
+
+```scss
+// ❌ NO documentar - obvio
+.button {
+  // Color de fondo
+  background-color: var(--red-main);
+  
+  // Color de texto
+  color: var(--white);
+  
+  // Padding del botón
+  padding: 0.75rem 1.5rem;
+}
+
+// ✅ Mejor - sin comentarios obvios
+.button {
+  background-color: var(--red-main);
+  color: var(--white);
+  padding: 0.75rem 1.5rem;
+}
+```
+
+## JSDoc Tags Útiles
+
+```typescript
+/**
+ * @deprecated Use `newMethod()` en su lugar. Se eliminará en v2.0
+ */
+oldMethod() { }
+
+/**
+ * @todo Implementar paginación cuando la API lo soporte
+ */
+loadAllProducts() { }
+```
+
+## Reglas de Oro
+
+1. **El código debe explicarse por sí mismo** - usa nombres descriptivos
+2. **Documenta el "por qué", no el "qué"** - el código muestra el qué
+3. **Documenta APIs públicas siempre** - servicios, componentes públicos
+4. **Omite lo obvio** - `getName()` no necesita docs
+5. **Explica workarounds** - hacks o soluciones no estándar requieren explicación

@@ -1,0 +1,76 @@
+<p-dialog 
+  [visible]="visible()"
+  (visibleChange)="visible.set($event)"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{width: '450px'}"
+  [closable]="true"
+  styleClass="profile-modal">
+  
+  <ng-template pTemplate="header">
+    <div class="profile-modal__header">
+      <i class="pi pi-user profile-modal__header-icon"></i>
+      <span class="profile-modal__header-title">Mi Perfil</span>
+    </div>
+  </ng-template>
+
+  @if (userProfile(); as profile) {
+    <div class="profile-modal__content">
+      <!-- Información Personal -->
+      <div class="profile-section">
+        <h3 class="profile-section__title">Información Personal</h3>
+        
+        <div class="profile-field">
+          <label class="profile-field__label">Nombre Completo</label>
+          <p class="profile-field__value">{{ profile.nombre }} {{ profile.apellido }}</p>
+        </div>
+
+        <div class="profile-field">
+          <label class="profile-field__label">Correo Electrónico</label>
+          <p class="profile-field__value">{{ profile.correo }}</p>
+        </div>
+      </div>
+
+      <!-- Documento -->
+      <div class="profile-section">
+        <h3 class="profile-section__title">Documento de Identidad</h3>
+        
+        <div class="profile-field">
+          <label class="profile-field__label">Tipo de Documento</label>
+          <p class="profile-field__value">{{ profile.tipoDocumento }} ({{ profile.codigoDocumento }})</p>
+        </div>
+
+        <div class="profile-field">
+          <label class="profile-field__label">Número de Documento</label>
+          <p class="profile-field__value">{{ profile.numeroDocumento }}</p>
+        </div>
+      </div>
+
+      <!-- Estado y Roles -->
+      <div class="profile-section">
+        <h3 class="profile-section__title">Estado de la Cuenta</h3>
+        
+        <div class="profile-field">
+          <label class="profile-field__label">Estado</label>
+          <p class="profile-field__value profile-field__value--status">
+            <span [class.status-badge--active]="profile.estado === 'Activo'" 
+                  class="status-badge">
+              {{ profile.estado }}
+            </span>
+          </p>
+        </div>
+
+        <div class="profile-field">
+          <label class="profile-field__label">Roles</label>
+          <div class="profile-field__roles">
+            @for (role of profile.roles; track role) {
+              <span class="role-badge">{{ role }}</span>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</p-dialog>
+
